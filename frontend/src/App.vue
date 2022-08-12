@@ -1,5 +1,7 @@
 <script setup>
 import Login from './components/Login.vue'
+import Feed from './components/Feed.vue'
+
 </script>
 
 <template>
@@ -9,6 +11,9 @@ import Login from './components/Login.vue'
 
   <main>
     <Login/>
+    <Feed/>
+
+
   </main>
 </template>
 
@@ -23,7 +28,10 @@ header {
   width:250px;
   height:250px;
 }
-
+main{
+  width: 100%;
+  /* margin: auto; */
+}
 /* @media (min-width: 1024px) {
   header {
     display: flex;

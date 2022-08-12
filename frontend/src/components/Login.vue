@@ -17,6 +17,7 @@
 
 
 <script >
+
 export default{
 name:'login',
 data:function(){
@@ -40,12 +41,18 @@ methods:{
 },
  swicthToLogin: function(){
     this.mode= 'login';
-}}}
+},
+// createAccount: function(){
+//     username: this.username,
+//     password: this.password
+// }
+}}
 </script>
 
 <style scoped>
 #login_form{
     width: 300px;
+    margin: auto;
 }
 .form{
     display: flex;
