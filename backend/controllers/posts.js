@@ -1,26 +1,21 @@
-const Post = require('../models/Post')
-const fs = require('fs')
+const { sequelize, Post, user_like_post } = require('../models')
+const db = require('../models');
 
-// Initilisation des constantes pour la fonction like/dislike
-const USER_LIKE = 1
-const USER_DISLIKE = -1
-const USER_RESET = 0
+const fs = require('fs');
+
 
 // Création d'une nouvelle post à partir d'un model
 exports.createPost = (req, res, next) => {
-    const postObject = JSON.parse(req.body.post)
-
-    // Suppression des éléments automatiquement créés et non voulus
-    // delete postObject._id
-    delete postObject._userId
+    console.log("etape 1 demande globale", req.body);
 
     const post = new Post({
-        ...postObject,
-        username: req.auth.userId,
-        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
+        description: req.body.description,
+        userId: req.auth.userId,
+        // imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
     })
+    console.log('etape 2 le post contient :', post);
     post.save()
-        .then(() => res.status(201).json({ message: 'Post enregistrée !' }))
+        .then(() => res.status(201).json({ message: 'Post enregistré !' }))
         .catch(error => res.status(400).json({ error }));
 }
 
@@ -30,96 +25,109 @@ exports.modifyPost = (req, res, next) => {
         ...JSON.parse(req.body.post),
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
     } : {...req.body }
+    console.log("postObject", postObject);
 
-    delete postObject._userId
-
-    Post.findOne({ _id: req.params.id })
+    Post.findOne({ where: { id: req.params.id } })
         .then(post => {
-            if (post.userId != req.auth.userId) {
-                res.status(401).json({ message: 'Non autorisé' })
-            } else {
-                Post.updateOne({ _id: req.params.id }, {...postObject, _id: req.params.id })
+            console.log("comparaison des userId", post.userId, req.auth.userId);
+            console.log("ton role", req.auth.role);
+            if (isAdmin(req.auth.role) || isCreator(post.userId, req.auth.userId)) {
+                console.log("user autorisé", postObject);
+                Post.update({...postObject }, { where: { id: req.params.id } })
                     .then(() => res.status(200).json({ message: 'Post modifiée' }))
                     .catch((error) => res.status(401).json({ message: error }))
+            } else {
+                res.status(401).json({ message: 'Non autorisé' })
             }
         })
         .catch(error => res.status(400).json({ error }))
 }
 
 exports.deletePost = (req, res, next) => {
-    Post.findOne({ _id: req.params.id })
+    console.log("debut suppression");
+    Post.findOne({ where: { id: req.params.id } })
         .then((post) => {
-            if (post.userId != req.auth.userId) {
-                res.status(401).json({ message: 'Non autorisé' })
+            console.log("comparaison des userId");
+            if (isAdmin(req.auth.role) || isCreator(post.userId, req.auth.userId)) {
+                console.log("suppression etape 1");
+                Post.destroy({ where: { id: req.params.id } })
+                    .then(() => res.status(200).json({ message: 'Post supprimée !' }))
+                    .catch((error) => res.status(401).json({ message: error }))
+                    // Récupération du nom de fichier pour suppression des données images de la bdd
+                    // const filename = post.imageUrl.split('/images/')[1]
+                    // fs.unlink(`images/${filename}`, () => {
+                    //     console.log("suppression etape 2");
+                    // })
             } else {
-                // Récupération du nom de fichier pour suppression des données images de la bdd
-                const filename = post.imageUrl.split('/images/')[1]
-                fs.unlink(`images/${filename}`, () => {
-                    Post.deleteOne({ _id: req.params.id })
-                        .then(() => res.status(200).json({ message: 'Post supprimée !' }))
-                        .catch((error) => res.status(401).json({ message: error }))
-                })
+                res.status(401).json({ message: 'Non autorisé' })
             }
         })
         .catch(error => res.status(500).json({ message: error }))
 }
 
 exports.getOnePost = (req, res, next) => {
-    Post.findOne({ _id: req.params.id })
+    Post.findOne({ where: { id: req.params.id } })
         .then(post => res.status(200).json(post))
         .catch(error => res.status(404).json({ error }))
 }
 
 exports.getAllPosts = (req, res, next) => {
-    Post.find()
+    Post.findAll()
         .then(posts => res.status(200).json(posts))
         .catch(error => res.status(400).json({ error }))
 }
 
 exports.likePost = (req, res, next) => {
+    const postId = parseInt(req.params.id)
+    const userId = parseInt(req.auth.userId)
 
-    Post.findOne({ _id: req.params.id })
-        .then((post) => {
-            // suppression de l'id de la requete
-            delete req.body.userId
-
-            // recuperation de l'id depuis le service auth
-            const userIdToAdd = req.auth.userId
-
-            // recuperation du choix de like -1, 0, 1
-            const likeOption = req.body.like
-
-            // Option like 
-            if (likeOption == USER_LIKE && !idIsPresent(userIdToAdd, post.usersLiked)) {
-                post.usersLiked.push(userIdToAdd)
-                post.likes++
-            }
-            // Option Dislike
-            if (likeOption == USER_DISLIKE && !idIsPresent(userIdToAdd, post.usersDisliked)) {
-                post.usersDisliked.push(userIdToAdd)
-                post.dislikes++
-            }
-            // Option neutre
-            if (likeOption == USER_RESET && idIsPresent(userIdToAdd, post.usersDisliked)) {
-                idToDelete(userIdToAdd, post.usersDisliked)
-                post.dislikes--
-            } else if (likeOption == USER_RESET && idIsPresent(userIdToAdd, post.usersLiked)) {
-                idToDelete(userIdToAdd, post.usersLiked)
-                post.likes--
-            }
-            post.save()
-                .then(() => res.status(201).json({ message: 'Like/Dislike modifié !' }))
-                .catch(error => res.status(400).json({ error }))
+    Like.create({
+            postId: postId,
+            userId: userId
         })
-        .catch(error => res.status(400).json({ error }))
+        .then(() => {
+            Post.findOne({ where: { id: req.params.id } })
+                .then(post => {
+                    post.nb_likes++;
+                    post.save()
+                        .then(() => res.status(200).json({ message: 'Post liked' }))
+                        .catch((error) => res.status(401).json({ message: error }))
+                })
+        })
+        .catch((error) => res.status(400).json({ message: error }))
 }
 
-// Permet de connaitre la position de l'id dans un tableau
-function idToDelete(userId, array) {
-    const idFinder = array.indexOf(array.find(id => id == userId))
-    array.splice(idFinder, 1)
+// Vérifie si l'utilisateur a déjà like le post dans la join table
+function isLiked(userId, postId) {
+    console.log("début vérif is Liked");
+    console.log(userId, postId);
+    Like.findOne({
+            where: {
+                userId: userId,
+                postId: postId
+            }
+        })
+        .then(() => {
+            console.log(userfound);
+            return true
+        })
+        .catch(() => res.status(400).json({ message: "impossible de vérif" }))
+
 }
-// Permet de savoir si l'id est présent dans un tableau
-function idIsPresent(userId, array) {
-    return array.includes(userId)
+
+function isAdmin(role) {
+    console.log("check de ton role", role);
+    if (role === "Admin") {
+        console.log("tu es bien admin");
+        return true
+    }
+}
+
+function isCreator(userId, reqAuth) {
+    console.log("check si t'es le créateur, ton id", reqAuth);
+    console.log("l'Id du créateur", userId);
+    if (userId === reqAuth) {
+        console.log("tu es bien le créateur");
+        return true
+    }
 }

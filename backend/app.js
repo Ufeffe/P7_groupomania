@@ -1,5 +1,6 @@
 require('dotenv').config()
-const { Sequelize } = require('sequelize')
+const { Sequelize, User, Post } = require('./models')
+
 
 const express = require('express')
 const path = require('path');
@@ -30,6 +31,7 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS')
     next()
 })
+
 
 app.use('/api/posts', postsRoutes)
 app.use('/api/auth', userRoutes)

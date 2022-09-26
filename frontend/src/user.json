@@ -1,0 +1,24 @@
+{
+    "users": [{
+        "id": 1,
+        "username": "John",
+        "password": "hash",
+        "role": "user",
+        "createdAt": "2022-09-19 14:06:46.455+02",
+        "updateAt": "2022-09-19 14:06:46.455+02"
+    }, {
+        "id": 2,
+        "username": "Charlotte",
+        "password": "hash",
+        "role": "user",
+        "createdAt": "2022-09-19 14:06:46.455+02",
+        "updateAt": "2022-09-19 14:06:46.455+02"
+    }, {
+        "id": 3,
+        "username": "Paul",
+        "password": "hash",
+        "role": "admin",
+        "createdAt": "2022-09-19 14:06:46.455+02",
+        "updateAt": "2022-09-19 14:06:46.455+02"
+    }]
+}

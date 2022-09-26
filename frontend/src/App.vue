@@ -1,21 +1,68 @@
-<script setup>
-import Login from './components/Login.vue'
-import Feed from './components/Feed.vue'
-
-</script>
-
 <template>
-  <header>
+  <!-- <header>
     <img alt="Vue logo" class="logo" src="./assets/icon-left-font.svg"  />
-  </header>
+  </header> -->
 
+  <!-- <div>
+      <div>
+      <router-link to="/"> Login</router-link>
+      <router-link to="/feed">Feed news</router-link>
+      </div>
+    <router-view></router-view>
+  </div> -->
   <main>
+    
     <Login/>
-    <Feed/>
 
-
+    <Feed
+    v-for = "post in posts"
+    :key="post.id"
+    :userId="post.userId"
+    :description="post.description"
+    :imageUrl="post.imageUrl"
+    :imageAlt="post.imageAlt"
+    :likes="post.likes"
+    ></Feed>
+    <!-- v-bind="post"
   </main>
+
 </template>
+
+
+
+<script >
+  import Login from './components/Login.vue'
+  import Feed from './components/Feed.vue'
+  
+export default{
+
+components:{
+  Login, Feed
+},
+data(){
+  return {
+    posts:[]
+  }
+}}
+</script>
+// methods:{
+//   getBearerToken(token){
+//     alert(token)
+//   }
+// },
+// created()
+//   {axios.get('http://127.0.0.1:5432/api/posts/', {
+//     headers:{
+//         "Authorization":'Bearer '+ userLoggedData.data.token
+//     }
+//   })
+//   .then((response) => {
+//       console.log("la réponse est :",response);
+//   this.posts = response;
+//   })
+//   }
+// }
+
 
 <style scoped>
 header {

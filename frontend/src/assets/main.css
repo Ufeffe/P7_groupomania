@@ -1,11 +1,13 @@
 @import "./base.css";
 #app {
-    height: 100vh;
+    min-height: 100vh;
+    height: 100%;
     margin: 0 auto;
     padding: 2rem;
     font-weight: normal;
-    background-color: teal;
-    color: white;
+    background: rgb(220, 169, 86);
+    background: linear-gradient(354deg, rgba(220, 169, 86, 1) 0%, rgba(255, 206, 184, 1) 67%, rgba(255, 250, 185, 1) 100%);
+    color: black;
     display: flex;
     flex-direction: column;
     place-items: center;
@@ -17,6 +19,7 @@
 .card_action {
     cursor: pointer;
     text-decoration: underline;
+    color: rgb(45, 45, 153);
 }
 
 
@@ -29,6 +32,7 @@
     border: 2px solid black;
     border-radius: 0.4em;
     box-shadow: 0.1em 0.1em;
+    margin-bottom: 25px;
 }
 
 .sumbit_button:hover {

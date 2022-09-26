@@ -7,8 +7,8 @@ const multer = require('../middleware/multer-config')
 const postCtrl = require('../controllers/posts')
 
 // Routes avec gestion de fichiers images
-router.post('/', auth, multer, postCtrl.createPost)
-router.put('/:id', auth, multer, postCtrl.modifyPost)
+router.post('/', auth, postCtrl.createPost)
+router.put('/:id', auth, postCtrl.modifyPost)
 
 // Routes sans gestion de fichiers images
 router.get('/', auth, postCtrl.getAllPosts)

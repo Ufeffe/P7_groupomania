@@ -1,14 +1,24 @@
-const User = require('../models/User')
+const { sequelize, User } = require('../models')
+
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 
 exports.signup = (req, res, next) => {
     bcrypt.hash(req.body.password, 10)
         .then(hash => {
-            const user = new User({
+
+            console.log(hash)
+            console.log("user avant créa", req.body)
+
+
+            const user = User.build({
                 username: req.body.username,
-                password: hash
+                password: hash,
+                role: req.body.role
             })
+
+            console.log("user créa", user)
+
             user.save()
                 .then(() => res.status(201).json({ message: 'Utilisateur créé' }))
                 .catch(error => res.status(400).json({ error }))
@@ -17,8 +27,9 @@ exports.signup = (req, res, next) => {
 }
 
 exports.login = (req, res, next) => {
-    User.findOne({ username: req.body.username })
+    User.findOne({ where: { username: req.body.username } })
         .then(user => {
+            console.log(req.body, user);
             if (user === null) {
                 res.status(401).json({ message: 'Paire identifiant/mdp incorrecte' })
             } else {
@@ -28,8 +39,11 @@ exports.login = (req, res, next) => {
                             res.status(401).json({ message: 'Paire identifiant/mdp incorrecte' })
                         } else {
                             res.status(200).json({
-                                userId: user._id,
-                                token: jwt.sign({ userId: user._id },
+                                userId: user.id,
+                                token: jwt.sign({
+                                        userId: user.id,
+                                        uuid: user.uuid
+                                    },
                                     'RANDOM_TOKEN_SECRET', { expiresIn: '24h' }
                                 )
                             })
