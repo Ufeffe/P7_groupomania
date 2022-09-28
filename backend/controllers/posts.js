@@ -1,4 +1,4 @@
-const { sequelize, Post, user_like_post } = require('../models')
+const { sequelize, Post, User, Like } = require('../models')
 const db = require('../models');
 
 const fs = require('fs');
@@ -72,48 +72,59 @@ exports.getOnePost = (req, res, next) => {
 }
 
 exports.getAllPosts = (req, res, next) => {
-    Post.findAll()
+    Post.findAll({ include: [{ model: User, as: "user", attributes: ['username'] }] })
         .then(posts => res.status(200).json(posts))
         .catch(error => res.status(400).json({ error }))
 }
 
-exports.likePost = (req, res, next) => {
+exports.likePost = async(req, res, next) => {
     const postId = parseInt(req.params.id)
     const userId = parseInt(req.auth.userId)
 
-    Like.create({
-            postId: postId,
-            userId: userId
-        })
-        .then(() => {
-            Post.findOne({ where: { id: req.params.id } })
-                .then(post => {
-                    post.nb_likes++;
-                    post.save()
-                        .then(() => res.status(200).json({ message: 'Post liked' }))
-                        .catch((error) => res.status(401).json({ message: error }))
-                })
-        })
-        .catch((error) => res.status(400).json({ message: error }))
+    const isLiked = await Like.findOne({
+        where: {
+            userId: userId,
+            postId: postId
+        }
+    })
+
+    if (isLiked) {
+        console.log("debut suppression");
+        await Like.destroy({
+                where: {
+                    userId: userId,
+                    postId: postId
+                }
+            })
+            .then(() => {
+                Post.findOne({ where: { id: req.params.id } })
+                    .then(post => {
+                        post.nb_likes--;
+                        post.save()
+                            .then(() => res.status(200).json({ message: 'Post non liked' }))
+                            .catch((error) => res.status(401).json({ message: error }))
+                    })
+            })
+            .catch((error) => res.status(400).json({ message: error }))
+    } else {
+        Like.create({
+                postId: postId,
+                userId: userId
+            })
+            .then(() => {
+                Post.findOne({ where: { id: req.params.id } })
+                    .then(post => {
+                        post.nb_likes++;
+                        post.save()
+                            .then(() => res.status(200).json({ message: 'Post liked' }))
+                            .catch((error) => res.status(401).json({ message: error }))
+                    })
+            })
+            .catch((error) => res.status(400).json({ message: error }))
+    }
 }
 
-// Vérifie si l'utilisateur a déjà like le post dans la join table
-function isLiked(userId, postId) {
-    console.log("début vérif is Liked");
-    console.log(userId, postId);
-    Like.findOne({
-            where: {
-                userId: userId,
-                postId: postId
-            }
-        })
-        .then(() => {
-            console.log(userfound);
-            return true
-        })
-        .catch(() => res.status(400).json({ message: "impossible de vérif" }))
 
-}
 
 function isAdmin(role) {
     console.log("check de ton role", role);

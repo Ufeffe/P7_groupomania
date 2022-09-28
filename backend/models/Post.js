@@ -1,6 +1,5 @@
 'use strict';
 const User = require('../models/user')
-const Like = require('../models/user_like_post')
 
 
 const {

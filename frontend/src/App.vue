@@ -14,7 +14,7 @@
     
     <Login/>
 
-    <Feed
+    <!-- <Feed
     v-for = "post in posts"
     :key="post.id"
     :userId="post.userId"
@@ -22,9 +22,9 @@
     :imageUrl="post.imageUrl"
     :imageAlt="post.imageAlt"
     :likes="post.likes"
-    ></Feed>
-    <!-- v-bind="post"
-  </main>
+    ></Feed> -->
+    <!-- v-bind="post"-->
+ </main>
 
 </template>
 

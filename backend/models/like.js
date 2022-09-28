@@ -1,6 +1,5 @@
 'use strict';
-const Post = require('./post')
-const User = require('./user')
+
 const {
     Model
 } = require('sequelize');
@@ -23,7 +22,7 @@ module.exports = (sequelize, DataTypes) => {
             });
         }
     }
-    user_like_post.init({
+    Like.init({
         userId: {
             type: 'Integer'
         },

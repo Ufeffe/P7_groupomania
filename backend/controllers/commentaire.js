@@ -9,8 +9,9 @@ exports.createCommentaire = (req, res, next) => {
         userId: req.auth.userId,
         postId: req.params.id
     })
+    console.log("Log de mon objet commentaire", commentaire);
 
-    Commentaire.create({...commentaire })
+    Commentaire.create({ commentaire })
         .then(() => res.status(201).json({ message: 'commentaire enregistré !' }))
         .catch(error => res.status(400).json({ error }));
 }
