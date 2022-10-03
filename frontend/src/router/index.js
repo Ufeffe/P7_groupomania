@@ -1,22 +1,15 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Feed from '@/components/Feed.vue'
-import Login from '@/components/Login.vue'
-
+import Home from '@/components/Home.vue'
 
 const routes = [{
-    name: 'Login',
     path: '/',
-    component: Login
-}, {
-    name: 'Feed',
-    path: '/feed',
-    component: Feed
-}]
+    name: 'home',
+    component: Home
+}, ]
 
 const router = createRouter({
-    history: createWebHistory,
+    history: createWebHistory(process.env.BASE_URL),
     routes
 })
-
 
 export default router

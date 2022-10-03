@@ -1,99 +1,44 @@
 <template>
-  <!-- <header>
-    <img alt="Vue logo" class="logo" src="./assets/icon-left-font.svg"  />
-  </header> -->
-
-  <!-- <div>
-      <div>
-      <router-link to="/"> Login</router-link>
-      <router-link to="/feed">Feed news</router-link>
-      </div>
-    <router-view></router-view>
-  </div> -->
-  <main>
-    
-    <Login/>
-
-    <!-- <Feed
-    v-for = "post in posts"
-    :key="post.id"
-    :userId="post.userId"
-    :description="post.description"
-    :imageUrl="post.imageUrl"
-    :imageAlt="post.imageAlt"
-    :likes="post.likes"
-    ></Feed> -->
-    <!-- v-bind="post"-->
- </main>
+  <div class="container">
+    <div class="welcome">
+        <h1>Welcome select a child</h1>
+        <!-- {{getLoginStatus}} -->
+    </div>
+    <div v-if="getLoginStatus.loginSuccess" class="child_display">
+      <posts/>
+    </div>
+    <div v-else class="child_display">
+      <login/>
+    </div>
+  </div>
 
 </template>
 
+<script>
+import posts from "@/components/Home";
+import login from '@/components/TheLogin';
+import { mapGetters } from "vuex";
 
-
-<script >
-  import Login from './components/Login.vue'
-  import Feed from './components/Feed.vue'
-  
-export default{
-
+export default {
+/* eslint-disable */
+name: 'Homepage',
 components:{
-  Login, Feed
+posts,
+login
 },
-data(){
-  return {
-    posts:[]
-  }
-}}
+computed:{
+...mapGetters(['getLoginStatus'])
+}
+}
 </script>
-// methods:{
-//   getBearerToken(token){
-//     alert(token)
-//   }
-// },
-// created()
-//   {axios.get('http://127.0.0.1:5432/api/posts/', {
-//     headers:{
-//         "Authorization":'Bearer '+ userLoggedData.data.token
-//     }
-//   })
-//   .then((response) => {
-//       console.log("la réponse est :",response);
-//   this.posts = response;
-//   })
-//   }
-// }
 
 
-<style scoped>
-header {
-  line-height: 1.5;
+<style>
+#app {
+  font-family: Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
 }
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-  width:250px;
-  height:250px;
-}
-main{
-  width: 100%;
-  /* margin: auto; */
-}
-/* @media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  } 
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-} */
 </style>
