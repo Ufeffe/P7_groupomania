@@ -6,10 +6,8 @@ module.exports = (req, res, next) => {
         const decodedToken = jwt.verify(token, 'RANDOM_TOKEN_SECRET')
         const userId = decodedToken.userId
         const role = decodedToken.role
-        const uuid = decodedToken.uuid
         req.auth = {
             userId: userId,
-            uuid: uuid,
             role: role
         }
         next()

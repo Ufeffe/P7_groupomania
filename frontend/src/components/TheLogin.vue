@@ -15,7 +15,6 @@
 </template>
 
 <script>
-    import axios from 'axios';
 import { mapActions } from "vuex";
 
     export default{
@@ -28,7 +27,7 @@ import { mapActions } from "vuex";
         }
     },
     methods:{
-        ...mapActions(['actionLogin']),
+        ...mapActions(['actionLogin', 'actionSignup']),
 
         swicthToCreateAccount: function(){
         this.mode= 'create';
@@ -36,30 +35,13 @@ import { mapActions } from "vuex";
         swicthToLogin: function(){
             this.mode= 'login';
         },
-
         submitLogin(){
             this.actionLogin({username:this.username, password:this.password})
         },
-
-        // submitLogin() {
-        //     console.log("debut du login");
-        //     axios.post('http://127.0.0.1:3000/api/auth/login', {username:this.username, password:this.password})
-        //     .then((res) => {
-        //         // that.$store.commit('login_success',res)
-        //         this.userLoggedData = res
-        //         console.log(this.userLoggedData);
-        //         console.log(this.userLoggedData.data.token);
-        //     })
-        // },
-        submitSignup() {
-            console.log("debut du signup");
-            axios.post('http://127.0.0.1:3000/api/auth/signup', {username:this.username, password:this.password})
-            .then((res) => {
-                // that.$store.commit('login_success',res)
-                this.userLoggedData = res
-                console.log(this.userLoggedData);
-                console.log(this.userLoggedData.data.token);
-            })
+        submitSignup(){
+            this.actionSignup({username:this.username, password:this.password})
+            this.mode= 'login';
+            // Ajouter modal compte créé log toi
         },
     },
     }

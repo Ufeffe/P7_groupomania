@@ -5,26 +5,26 @@
         <!-- {{getLoginStatus}} -->
     </div>
     <div v-if="getLoginStatus.loginSuccess" class="child_display">
-      <posts/>
+      <Home/>
     </div>
     <div v-else class="child_display">
-      <login/>
+      <TheLogin/>
     </div>
   </div>
 
 </template>
 
 <script>
-import posts from "@/components/Home";
-import login from '@/components/TheLogin';
+import Home from "@/components/Home";
+import TheLogin from '@/components/TheLogin';
 import { mapGetters } from "vuex";
 
 export default {
 /* eslint-disable */
 name: 'Homepage',
 components:{
-posts,
-login
+  Home,
+  TheLogin
 },
 computed:{
 ...mapGetters(['getLoginStatus'])
