@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="welcome">
-        <h1>Welcome select a child</h1>
+        <h1>Groupomania</h1>
         <!-- {{getLoginStatus}} -->
     </div>
     <div v-if="getLoginStatus.loginSuccess" class="child_display">
