@@ -36,7 +36,7 @@ export default {
                     "Authorization": 'Bearer ' + this.getLoginStatus.userInfos.token
                 }} )
             .then((res) => {
-                console.log(res);
+                this.description = ""
             })
             .catch(error => ({ error }))
         },

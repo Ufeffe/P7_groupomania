@@ -1,4 +1,4 @@
-const { sequelize, Post, User, Like } = require('../models')
+const { sequelize, Post, User, Like, Commentaire } = require('../models')
 const db = require('../models');
 // import services from '../service/services'
 const fs = require('fs');
@@ -37,6 +37,8 @@ exports.modifyPost = (req, res, next) => {
 }
 
 exports.deletePost = (req, res, next) => {
+    console.log("debut suppr");
+    console.log(req.params.id);
     Post.findOne({ where: { id: req.params.id } })
         .then((post) => {
             if (isAdmin(req.auth.role) || isCreator(post.userId, req.auth.userId)) {
@@ -55,8 +57,18 @@ exports.deletePost = (req, res, next) => {
         .catch(error => res.status(500).json({ message: error }))
 }
 
-exports.getOnePost = async(req, res, next) => {
-    await Post.findOne({ where: { id: req.params.id }, include: [{ model: User, as: "user", attributes: ['username'] }] })
+exports.getOnePost = (req, res, next) => {
+    Post.findOne({
+            where: { id: req.params.id },
+            include: [{ model: User, as: "user", attributes: ['username'] }, {
+                model: Commentaire,
+                required: false,
+                through: {
+                    where: { postId: req.params.id },
+                    attributes: ['description']
+                }
+            }]
+        })
         .then(post => res.status(200).json(post))
         .catch(error => res.status(404).json({ error }))
 }
@@ -68,6 +80,7 @@ exports.getAllPosts = (req, res, next) => {
 }
 
 exports.likePost = async(req, res, next) => {
+    console.log("debut like");
     const postId = parseInt(req.params.id)
     const userId = parseInt(req.auth.userId)
 
@@ -109,5 +122,18 @@ exports.likePost = async(req, res, next) => {
                     })
             })
             .catch((error) => res.status(400).json({ message: error }))
+    }
+}
+
+
+function isAdmin(role) {
+    if (role === "Admin") {
+        return true
+    }
+}
+
+function isCreator(userId, reqAuth) {
+    if (userId === reqAuth) {
+        return true
     }
 }
