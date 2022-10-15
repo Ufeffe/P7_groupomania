@@ -23,8 +23,6 @@ const store = createStore({
         },
         getPosts_success(state, payload) {
             state.posts = payload
-            console.log("log apres fetch debut transfet", state.posts);
-            console.log("transfert ok");
         }
     },
     actions: {
@@ -35,18 +33,16 @@ const store = createStore({
                     const data = res.data
                     context.commit('login_success', { userId: data.userId, token: data.token, role: data.role })
                 })
-                .then(() => {
-                    console.log(context);
-                    context.dispatch.actionCallAllPosts
-                })
         },
-        actionSignup(context, payload) {
-            axios.post('http://127.0.0.1:3000/api/auth/signup', { username: payload.username, password: payload.password })
-                .then((res) => {
-                    console.log("reponse du server back", res);
-                    const data = res.data
-                    console.log(data);
-                })
+        async actionSignup(context, payload) {
+            axios.all([
+                    await axios.post('http://127.0.0.1:3000/api/auth/signup', { username: payload.username, password: payload.password }),
+                    axios.post('http://127.0.0.1:3000/api/auth/login', { username: payload.username, password: payload.password })
+                ])
+                .then((axios.spread((data1, data2) => {
+                    const data = data2.data
+                    context.commit('login_success', { userId: data.userId, token: data.token, role: data.role })
+                })))
         },
         actionCallAllPosts(context) {
             console.log("debut fetch");

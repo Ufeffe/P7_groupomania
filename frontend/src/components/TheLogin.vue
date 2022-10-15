@@ -39,10 +39,7 @@ import { mapActions } from "vuex";
             this.actionLogin({username:this.username, password:this.password})
         },
         submitSignup(){
-            console.log("debut signup", this.username, this.password);
             this.actionSignup({username:this.username, password:this.password})
-            this.mode= 'login';
-            // Ajouter modal compte créé log toi
         },
     },
     }
