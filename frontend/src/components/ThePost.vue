@@ -5,7 +5,8 @@
             <h3 class="news_time">{{createdAt}}</h3>
         </header>
 
-        <p class="news_article"> {{description}}</p>
+        <p class="news_article" v-if="mode == 'read'"> {{description}}</p>
+        <textarea  v-else v-model="newDescription"></textarea>
 
         <div class="news_img_container" v-if="imageUrl != ''">
             <img class="news_img" :src="imageUrl" :alt="imageAlt">
@@ -15,6 +16,8 @@
         <!-- <font-awesome-icon icon="fa-solid fa-heart" class="like_icon"/> -->
          {{likes}}
         </div>
+        <button @click="switchToEdit" v-if="mode == 'read'">Modifier texte</button>
+        <button type="submit" v-else @click="modifyPost">Enregistrer</button>
         <button type="submit" @click="deletePost">Delete</button>
         <button type="submit" @click="likePost">Like</button>
 
@@ -28,6 +31,12 @@ import axios from 'axios';
 
 export default {
     name:'Post',
+    data(){
+        return{
+            mode:'read',
+            newDescription: ""
+        }
+    },
     props:{
         user:{
             type:String,
@@ -61,6 +70,10 @@ export default {
         },
     methods:{
             // ...mapActions(['actionDeletePost']),
+        switchToEdit:function(){
+            this.mode = 'edit'
+        },
+
         deletePost() {
             axios.delete(`http://127.0.0.1:3000/api/posts/${this.postId}`,{
                 headers: {
@@ -85,12 +98,32 @@ export default {
                 })
                 .catch(error => ({ error }))
         },
+        
+        modifyPost(){
+            if (this.newDescription !=""){
+            axios.put(`http://127.0.0.1:3000/api/posts/${this.postId}`,{
+                description:this.newDescription
+            },{
+                headers: {
+                        "Authorization": 'Bearer ' + this.getLoginStatus.userInfos.token
+                    }
+                })
+                .then((res) => {
+                    console.log("response axios", res);
+                    this.mode = 'read'
+                    return res
+                })
+                .catch(error => (
+                    this.mode = 'read', { error }))
+        }else{
+            window.alert('veuillez entrer un texte avant de poster')
+        }},
+
             // deletePost(){
             //     console.log(this.postId);
             //     this.actionDeletePost({postId:this.postId})
             // }
         }
-        
 }
 </script>
 

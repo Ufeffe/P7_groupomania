@@ -1,8 +1,16 @@
 <template>
-  <div>
+      <div class="post_creation">
+
+  <!-- <div class="post_creation" enctype="multipart/form-data"> -->
     <h1>Créer votre post</h1>
-    <input type="text" v-model="description">
-    <button type="submit" @click="CreatPost(description)">Poster</button>
+
+    <textarea name="" id="" cols="30" rows="10" v-model="description"></textarea>
+
+    <label for="insert_image">Importer une image:</label>
+    <input type="file" id="insert_image" name="insert_image" accept="image/png, image/jpeg, image/jpg" @change="onFileSelected($event)">
+
+    <button type="submit" @click="CreatPost()">Poster</button>
+
   </div>
 </template>
 
@@ -15,7 +23,7 @@ export default {
     data(){
         return{
             description:"",
-            imageUrl:""
+            image:'',
         }
     },
     computed:{
@@ -24,22 +32,33 @@ export default {
     methods:{
     
         // ...mapActions(['actionCreatPost']),
-
-        CreatPost(text) {
-            console.log("2",this.getLoginStatus.userInfos.token);
-            console.log("1",text);
-
-        axios.post('http://127.0.0.1:3000/api/posts/', {
-                description:text,
-                },
-                {headers: {
-                    "Authorization": 'Bearer ' + this.getLoginStatus.userInfos.token
-                }} )
-            .then((res) => {
-                this.description = ""
-            })
-            .catch(error => ({ error }))
+        onFileSelected(event){
+            this.image = event.target.files[0]       
         },
+            CreatPost() {
+                // const formData = new FormData();
+                // formData.append('image', this.image);
+                // formData.append('description', this.description);
+
+                // for (const value of formData.values()) {
+                // console.log(value);
+                // }
+                if( this.description != ""){               
+                axios.post('http://127.0.0.1:3000/api/posts/', {
+                    description :this.description
+                    },
+                    {headers: {
+                        "Authorization": 'Bearer ' + this.getLoginStatus.userInfos.token,
+                        // 'Content-Type': 'multipart/form-data'
+                    }} )
+                .then((res) => {
+                    this.description = ""
+                    console.log(res);
+                })
+                .catch(error => ({ error }))
+        }else{
+            window.alert('veuillez entrer un texte avant de poster')
+        }},
 
             // CreatPost(){
             //     this.actionCreatPost({ description:this.description })
@@ -48,3 +67,17 @@ export default {
 }
 </script>
 
+<style scoped>
+.post_creation{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px 0;
+}
+
+textarea {
+    width: 250px;
+    height: 150px;
+  resize: none;
+}
+</style>
