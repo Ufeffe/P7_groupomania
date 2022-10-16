@@ -4,6 +4,8 @@
         <Profil />
         <PostCreator />
 
+        <!-- <SimpleUpload/> -->
+
         <button type="submit" @click="fetchItem">Fetch Posts</button>
         <Post v-for="post in postsFetched"
         :key="post.id"
@@ -22,6 +24,7 @@
     import Post  from "./ThePost.vue";
     import Profil from "./TheProfile.vue";
     import PostCreator from "./ThePostCreator.vue";
+    import SimpleUpload from "./SimpleUpload.vue"
     import { mapActions, mapGetters } from "vuex";
     import axios from 'axios';
 
@@ -30,7 +33,6 @@
         name:'Home',
         data(){
             return{
-                posts:[{postId:1, user:{username:'Hector'},createdAt:"2 Avril",description:"fzeu",imageUrl:"url", imagAlt:"altImage",likes:5},{postId:2, user:{username:'Jean'},createdAt:"2 Avril",description:"fzeu",imageUrl:"", imagAlt:"altImage",likes:2},],
                 postsFetched:[],
             }
         },
@@ -38,44 +40,45 @@
             Post,
             Profil,
             PostCreator,
+            SimpleUpload,
         },
         computed:{
             ...mapGetters(['getLoginStatus', 'getAllPosts']),
             
         },
         mounted(){
-            this.actionCallAllPosts()
-            // this.fetchItem()
-        },
-        created(){
-            this.postsFetched=this.getAllPosts
+            // this.actionCallAllPosts()
+            this.fetchItem()
         },
         methods:{
-            ...mapActions(['actionCallAllPosts']),
-
-            // fetchItem(){
-            // axios.get('http://127.0.0.1:3000/api/posts/', {
-            //         headers: {
-            //             "Authorization": 'Bearer ' + this.getLoginStatus.userInfos.token
-            //         }
-            //     })
-            //     .then((res) => {
-            //         console.log("response axios", res.data);
-            //         return res.data
-            //     })
-            //     .then((postsArray)=> {
-            //         this.postsFetched = postsArray.reverse()
-            //         console.log("result final",this.postsFetched);
-            //     })
-            //     .catch(error => ({ error }))
-            // },
+            // ...mapActions(['actionCallAllPosts']),
+            //Call des posts de la BDD
+            fetchItem(){
+            axios.get('http://127.0.0.1:3000/api/posts/', {
+                    headers: {
+                        "Authorization": 'Bearer ' + this.getLoginStatus.userInfos.token
+                    }
+                })
+                .then((res) => {
+                    console.log("response axios", res.data);
+                    return res.data
+                })
+                .then((postsArray)=> {
+                    //recupération du tableau des posts et tri en fonction de l'id en décroissant
+                    this.postsFetched = postsArray.sort(function(a,b) { 
+                        return b.id - a.id })
+                    console.log("result final",this.postsFetched);
+                })
+                .catch(error => ({ error }))
+            },
             // FecthPosts(){
             //     this.actionCallAllPosts()
             //     .then((postsArray)=> {
             //         this.postsFetched = postsArray
             //         console.log("result final 2 ",this.postsFetched);
             //     })
-            // }
+            // },
+            
         },
     }
 </script>

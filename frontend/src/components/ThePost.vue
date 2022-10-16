@@ -16,17 +16,29 @@
         <!-- <font-awesome-icon icon="fa-solid fa-heart" class="like_icon"/> -->
          {{likes}}
         </div>
-        <button @click="switchToEdit" v-if="mode == 'read'">Modifier texte</button>
-        <button type="submit" v-else @click="modifyPost">Enregistrer</button>
-        <button type="submit" @click="deletePost">Delete</button>
+        <div v-if="this.getLoginStatus.userInfos.username  === this.user || this.getLoginStatus.userInfos.role ==='Admin'">
+            <button type="submit" @click="deletePost">Delete</button>
+            <button @click="switchToEdit" v-if="mode == 'read'">Modifier texte</button>
+            <button @click="switchToRead" v-if="mode=='edit'">Annuler</button>
+            <button type="submit" v-if="mode=='edit'" @click="modifyPost">Enregistrer</button>
+        </div>
         <button type="submit" @click="likePost">Like</button>
+
+        <TheComTemplate v-for="com in coms"
+        :key="com.id"
+        :username= "com.user.username"
+        :description="com.description"
+        :createdAt="com.createdAt"
+        ></TheComTemplate>
 
     </article>
 </template>
 
 <script>
-import { mapActions, mapGetters } from "vuex";
 import axios from 'axios';
+import { mapActions, mapGetters } from "vuex";
+
+import TheComTemplate  from "./TheComTemplate.vue";
 
 
 export default {
@@ -34,9 +46,11 @@ export default {
     data(){
         return{
             mode:'read',
-            newDescription: ""
+            newDescription: "",
+            coms:[],
         }
     },
+    components:{TheComTemplate},
     props:{
         user:{
             type:String,
@@ -67,13 +81,35 @@ export default {
     }, 
     computed:{
             ...mapGetters(['getLoginStatus']),
+            
         },
+    mounted(){
+        this.callComments()
+    },
     methods:{
             // ...mapActions(['actionDeletePost']),
+
         switchToEdit:function(){
             this.mode = 'edit'
         },
-
+        switchToRead:function(){
+            this.mode = 'read'
+        },
+        callComments(){
+                    axios.get(`http://127.0.0.1:3000/api/commentaire/${this.postId}`,{
+                headers: {
+                        "Authorization": 'Bearer ' + this.getLoginStatus.userInfos.token
+                    }
+                })
+                .then((res)=>{
+                    console.log("response axios", res.data);
+                    return res.data
+                })
+                .then((res)=>{
+                    this.coms= res
+                    console.log("log de this.coms",this.coms);
+                })
+            },
         deletePost() {
             axios.delete(`http://127.0.0.1:3000/api/posts/${this.postId}`,{
                 headers: {
@@ -86,19 +122,6 @@ export default {
                 })
                 .catch(error => ({ error }))
         },
-        likePost() {
-             axios.post(`http://127.0.0.1:3000/api/posts/${this.postId}/like`,{},{
-                headers: {
-                        "Authorization": 'Bearer ' + this.getLoginStatus.userInfos.token
-                    }
-                })
-                .then((res) => {
-                    console.log("response axios", res);
-                    return res
-                })
-                .catch(error => ({ error }))
-        },
-        
         modifyPost(){
             if (this.newDescription !=""){
             axios.put(`http://127.0.0.1:3000/api/posts/${this.postId}`,{
@@ -118,12 +141,19 @@ export default {
         }else{
             window.alert('veuillez entrer un texte avant de poster')
         }},
-
-            // deletePost(){
-            //     console.log(this.postId);
-            //     this.actionDeletePost({postId:this.postId})
-            // }
-        }
+        likePost() {
+             axios.post(`http://127.0.0.1:3000/api/posts/${this.postId}/like`,{},{
+                headers: {
+                        "Authorization": 'Bearer ' + this.getLoginStatus.userInfos.token
+                    }
+                })
+                .then((res) => {
+                    console.log("response axios", res);
+                    return res
+                })
+                .catch(error => ({ error }))
+        },
+    }
 }
 </script>
 

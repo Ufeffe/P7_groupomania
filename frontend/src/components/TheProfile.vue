@@ -1,8 +1,7 @@
 <template>
     <div>
-        <h1>Bonjour {{getLoginStatus.userInfos.userId}}</h1>
+        <h1>Bonjour {{getLoginStatus.userInfos.username}}</h1>
         <p>Ton role est : {{getLoginStatus.userInfos.role}}</p>
-        
     </div>
 </template>
 

@@ -1,4 +1,7 @@
+const { storage } = require('debug/src/browser');
 const multer = require('multer')
+
+
 
 const MIME_TYPES = {
     'image/jpg': 'jpg',
@@ -6,9 +9,9 @@ const MIME_TYPES = {
     'image/png': 'png'
 }
 
-const storage = multer.diskStorage({
+const Storage = multer.diskStorage({
     destination: (req, file, callback) => {
-        callback(null, 'images')
+        callback(null, '../images')
     },
     filename: (req, file, callback) => {
         const name = file.originalname.split(' ').join('_')
@@ -17,4 +20,4 @@ const storage = multer.diskStorage({
     }
 })
 
-module.exports = multer({ storage }).single('image')
+module.exports = multer({ storage: Storage }).single('image')

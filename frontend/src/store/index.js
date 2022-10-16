@@ -5,7 +5,7 @@ import axios from 'axios';
 const store = createStore({
     state: {
         loginSuccess: false,
-        userInfos: { userId: '', token: '', role: '' },
+        userInfos: { username: '', token: '', role: '' },
         posts: {}
     },
     getters: {
@@ -31,7 +31,7 @@ const store = createStore({
                 .then((res) => {
                     console.log("reponse du server back", res);
                     const data = res.data
-                    context.commit('login_success', { userId: data.userId, token: data.token, role: data.role })
+                    context.commit('login_success', { username: data.username, token: data.token, role: data.role })
                 })
         },
         async actionSignup(context, payload) {
@@ -41,7 +41,7 @@ const store = createStore({
                 ])
                 .then((axios.spread((data1, data2) => {
                     const data = data2.data
-                    context.commit('login_success', { userId: data.userId, token: data.token, role: data.role })
+                    context.commit('login_success', { username: data.username, token: data.token, role: data.role })
                 })))
         },
         actionCallAllPosts(context) {
@@ -58,7 +58,7 @@ const store = createStore({
                     return context.commit('getPosts_success', { data })
                 })
                 .catch(error => ({ error }))
-        }
+        },
     },
 })
 

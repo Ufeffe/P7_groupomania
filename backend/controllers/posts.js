@@ -6,6 +6,12 @@ const fs = require('fs');
 
 // Création d'une nouvelle post à partir d'un model
 exports.createPost = (req, res, next) => {
+    // console.log("req.file", req.file);
+    // console.log("req.body", req.body);
+
+    // console.log("log de proto", req.protocol);
+    // console.log("log de get", req.get);
+    // console.log("log de file", req.file);
     const post = new Post({
         description: req.body.description,
         userId: req.auth.userId,
@@ -78,6 +84,16 @@ exports.getAllPosts = (req, res, next) => {
         .then(posts => res.status(200).json(posts))
         .catch(error => res.status(400).json({ error }))
 }
+
+// Back de mon getAllPosts-----------------------------------------------------------------------
+// exports.getAllPosts = (req, res, next) => {
+//     Post.findAll({ include: [{ model: User, as: "user", attributes: ['username'] }] })
+//         .then(posts => res.status(200).json(posts))
+//         .catch(error => res.status(400).json({ error }))
+// }
+// Back de mon getAllPosts-----------------------------------------------------------------------
+
+
 
 exports.likePost = async(req, res, next) => {
     console.log("debut like");
