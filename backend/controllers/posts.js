@@ -6,16 +6,19 @@ const fs = require('fs');
 
 // Création d'une nouvelle post à partir d'un model
 exports.createPost = (req, res, next) => {
-    // console.log("req.file", req.file);
-    // console.log("req.body", req.body);
+    console.log("req.files", req.files);
+    console.log("req.body", req.body);
+    console.log("req.body2----------------------------------------", req.body.description);
 
-    // console.log("log de proto", req.protocol);
-    // console.log("log de get", req.get);
-    // console.log("log de file", req.file);
+
+    console.log("log de proto", req.protocol);
+    console.log("log de get", req.get);
+    console.log("log de file", req.file);
+
     const post = new Post({
         description: req.body.description,
         userId: req.auth.userId,
-        // imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
+        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
     })
     post.save()
         .then(() => res.status(201).json({ message: 'Post enregistré !' }))

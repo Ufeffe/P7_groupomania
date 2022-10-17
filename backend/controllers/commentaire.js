@@ -15,11 +15,15 @@ exports.createCommentaire = (req, res, next) => {
 }
 
 exports.modifyCommentaire = (req, res, next) => {
+    console.log("log du req", req.body);
+    console.log("log du req.params.id", req.params.id);
+    console.log("auth ID", req.auth.userId);
 
     const description = req.body.description
 
     Commentaire.findOne({ where: { id: req.params.id } })
         .then(commentaire => {
+            console.log("ID user du comm", commentaire.userId);
             if (isAdmin(req.auth.role) || isCreator(commentaire.userId, req.auth.userId)) {
                 Commentaire.update({ description }, { where: { id: req.params.id } })
                     .then(() => res.status(200).json({ message: 'commentaire modifié' }))
@@ -50,6 +54,8 @@ exports.deleteCommentaire = (req, res, next) => {
     Commentaire.findOne({ where: { id: req.params.id } })
         .then((commentaire) => {
             if (isAdmin(req.auth.role) || isCreator(commentaire.userId, req.auth.userId)) {
+                console.log(("debut suppr"));
+                console.log(req.params.id);
                 commentaire.destroy({ where: { id: req.params.id } })
                     .then(() => res.status(200).json({ message: 'commentaire supprimé !' }))
                     .catch((error) => res.status(401).json({ message: error }))

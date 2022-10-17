@@ -7,6 +7,7 @@
         <!-- <SimpleUpload/> -->
 
         <button type="submit" @click="fetchItem">Fetch Posts</button>
+        
         <Post v-for="post in postsFetched"
         :key="post.id"
         :user="post.user.username"

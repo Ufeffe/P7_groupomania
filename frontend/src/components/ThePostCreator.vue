@@ -36,21 +36,21 @@ export default {
             this.image = event.target.files[0]       
         },
             CreatPost() {
-                // const formData = new FormData();
-                // formData.append('image', this.image);
-                // formData.append('description', this.description);
+                const formData = new FormData();
+                formData.append('file', this.image);
+                formData.append('description', this.description);
 
-                // for (const value of formData.values()) {
-                // console.log(value);
-                // }
+                for (const value of formData.values()) {
+                console.log(value);
+                }
                 if( this.description != ""){               
-                axios.post('http://127.0.0.1:3000/api/posts/', {
-                    description :this.description
-                    },
-                    {headers: {
+                axios.post('http://127.0.0.1:3000/api/posts/',
+                    formData
+                ,
+                {headers: {
                         "Authorization": 'Bearer ' + this.getLoginStatus.userInfos.token,
-                        // 'Content-Type': 'multipart/form-data'
-                    }} )
+                        'Content-Type': 'multipart/form-data'
+                }} )
                 .then((res) => {
                     this.description = ""
                     console.log(res);
