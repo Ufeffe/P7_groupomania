@@ -1,29 +1,26 @@
 import { createStore } from 'vuex';
 import axios from 'axios';
 
-
 const store = createStore({
     state: {
         loginSuccess: false,
         userInfos: { username: '', token: '', role: '' },
-        posts: {}
     },
     getters: {
         getLoginStatus(state) {
             return state
         },
-        getAllPosts(state) {
-            return state.posts
-        }
     },
     mutations: {
         login_success(state, payload) {
             state.loginSuccess = true;
             state.userInfos = payload;
+            localStorage.setItem('user', JSON.stringify(state.userInfos));
         },
-        getPosts_success(state, payload) {
-            state.posts = payload
-        }
+        logout(state) {
+            localStorage.removeItem('user');
+            state.loginSuccess = false;
+        },
     },
     actions: {
         actionLogin(context, payload) {
@@ -44,22 +41,16 @@ const store = createStore({
                     context.commit('login_success', { username: data.username, token: data.token, role: data.role })
                 })))
         },
-        actionCallAllPosts(context) {
-            console.log("debut fetch");
-            axios.get('http://127.0.0.1:3000/api/posts/', {
-                    headers: {
-                        "Authorization": 'Bearer ' + context.state.userInfos.token
-                    }
-                })
-                .then((res) => {
-                    console.log("response axios", res.data);
-                    let data = res.data.reverse()
-                    console.log("apres fetch", data);
-                    return context.commit('getPosts_success', { data })
-                })
-                .catch(error => ({ error }))
-        },
     },
 })
-
+let user = localStorage.getItem('user');
+if (user) {
+    try {
+        let userInfos = JSON.parse(user)
+        console.log(userInfos);
+        store.commit('login_success', { username: userInfos.username, token: userInfos.token, role: userInfos.role })
+    } catch (ex) {
+        console.log("pas de données récupéré");
+    }
+}
 export default store

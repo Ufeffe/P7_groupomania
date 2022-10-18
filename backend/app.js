@@ -14,7 +14,7 @@ const app = express()
 
 async function connectToPostgres() {
 
-    const sequelize = new Sequelize('postgres://postgres:poiu987@localhost:5432/P7_groupomania')
+    const sequelize = new Sequelize('postgres://dvftiwqj:Ky6KQCXcS8ZO7xonVhlqQ4Q4P3vj3qo9@tyke.db.elephantsql.com/dvftiwqj')
     try {
         await sequelize.authenticate();
         console.log('Connection has been established successfully.');

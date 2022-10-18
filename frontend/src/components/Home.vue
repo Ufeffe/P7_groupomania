@@ -2,13 +2,11 @@
     <div>
         <h1>Affichage des posts</h1>
         <Profil />
-        <PostCreator />
+        <PostCreator 
+        :fetchFunction="this.fetchItem"/>
 
-        <!-- <SimpleUpload/> -->
-
-        <button type="submit" @click="fetchItem">Fetch Posts</button>
-        
         <Post v-for="post in postsFetched"
+        :fetchFunction="this.fetchItem"
         :key="post.id"
         :user="post.user.username"
         :createdAt="post.createdAt"
@@ -26,8 +24,9 @@
     import Profil from "./TheProfile.vue";
     import PostCreator from "./ThePostCreator.vue";
     import SimpleUpload from "./SimpleUpload.vue"
-    import { mapActions, mapGetters } from "vuex";
+    import { mapMutations , mapGetters } from "vuex";
     import axios from 'axios';
+    import store from "@/store";
 
 
     export default{
@@ -44,15 +43,18 @@
             SimpleUpload,
         },
         computed:{
-            ...mapGetters(['getLoginStatus', 'getAllPosts']),
+            ...mapGetters(['getLoginStatus']),
             
         },
         mounted(){
-            // this.actionCallAllPosts()
             this.fetchItem()
         },
         methods:{
-            // ...mapActions(['actionCallAllPosts']),
+            ...mapMutations(['logout']),
+
+            logoutAction(){
+                store.commit('logout')
+            },
             //Call des posts de la BDD
             fetchItem(){
             axios.get('http://127.0.0.1:3000/api/posts/', {
@@ -72,13 +74,6 @@
                 })
                 .catch(error => ({ error }))
             },
-            // FecthPosts(){
-            //     this.actionCallAllPosts()
-            //     .then((postsArray)=> {
-            //         this.postsFetched = postsArray
-            //         console.log("result final 2 ",this.postsFetched);
-            //     })
-            // },
             
         },
     }

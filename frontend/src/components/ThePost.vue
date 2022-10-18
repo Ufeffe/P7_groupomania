@@ -8,8 +8,8 @@
         <p class="news_article" v-if="mode == 'read'"> {{description}}</p>
         <textarea  v-else v-model="newDescription"></textarea>
 
-        <div class="news_img_container" v-if="imageUrl != ''">
-            <img class="news_img" :src="imageUrl" :alt="imageAlt">
+        <div class="news_img_container" v-if="imageUrl != null && mode == 'read'">
+            <img class="news_img" :src="imageUrl" :alt="imageAlt" >
         </div>
 
         <div class="news_like_container"> 
@@ -31,6 +31,7 @@
         </div>
 
         <TheComTemplate v-for="com in comsFetched"
+        :fetchComFunction="this.callComments"
         :comId="com.id"
         :key="com.id"
         :user= "com.user.username"
@@ -43,7 +44,7 @@
 
 <script>
 import axios from 'axios';
-import { mapActions, mapGetters } from "vuex";
+import { mapGetters } from "vuex";
 
 import TheComTemplate  from "./TheComTemplate.vue";
 
@@ -84,17 +85,20 @@ export default {
         postId:{
             type:Number,
             required:true
+        },
+        fetchFunction:{
+            type:Function,
+            require:true
         }
     }, 
     computed:{
             ...mapGetters(['getLoginStatus']),
-            
+
         },
     mounted(){
         this.callComments()
     },
     methods:{
-            // ...mapActions(['actionDeletePost']),
 
         switchToEdit:function(){
             this.mode = 'edit'
@@ -112,6 +116,8 @@ export default {
                 })
                 .then((res)=>{
                     console.log("response axios", res.data);
+                    this.descriptionCommentaire = ""
+                    this.callComments()
                     return res.data
                 })
                 .catch(error => ({ error }))
@@ -130,6 +136,7 @@ export default {
                     //recupération du tableau des posts et tri en fonction de l'id en décroissant
                     this.comsFetched = comArray.sort(function(a,b) { 
                         return b.id - a.id })
+                    this.fetchFunction()
                     console.log("result final",this.comsFetched);
                 })
                 .catch(error => ({ error }))
@@ -142,6 +149,7 @@ export default {
                 })
                 .then((res) => {
                     console.log("response axios", res);
+                    this.fetchFunction()
                     return res
                 })
                 .catch(error => ({ error }))
@@ -158,6 +166,7 @@ export default {
                 .then((res) => {
                     console.log("response axios", res);
                     this.mode = 'read'
+                    this.fetchFunction()
                     return res
                 })
                 .catch(error => (
@@ -173,6 +182,7 @@ export default {
                 })
                 .then((res) => {
                     console.log("response axios", res);
+                    this.fetchFunction()
                     return res
                 })
                 .catch(error => ({ error }))
@@ -185,5 +195,10 @@ export default {
 .news{
     border:  solid grey;
     margin-top: 5px;
+}
+.news_img{
+    width: 350px;
+    height: 450px;
+    object-fit: cover;
 }
 </style>

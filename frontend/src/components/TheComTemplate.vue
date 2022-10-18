@@ -6,10 +6,10 @@
         <textarea  v-else v-model="newDescription"></textarea>
 
       <div v-if="this.getLoginStatus.userInfos.username  === this.user || this.getLoginStatus.userInfos.role ==='Admin'">
-              <button type="submit" @click="deletePost">Delete</button>
+              <button type="submit" @click="deleteCom">Delete</button>
               <button @click="switchToEdit" v-if="mode == 'read'">Modifier texte</button>
               <button @click="switchToRead" v-if="mode=='edit'">Annuler</button>
-              <button type="submit" v-if="mode=='edit'" @click="modifyPost">Enregistrer</button>
+              <button type="submit" v-if="mode=='edit'" @click="modifyCom">Enregistrer</button>
       </div>
     </div>
 </template>
@@ -27,22 +27,26 @@ export default {
       }
     },
     props:{
-            user:{
-                type:String,
-                required:true
-            },
-            createdAt:{
-                type:String,
-                required:true
-            },
-            description:{
-                type:String,
-                required:true
-            },
-            comId:{
+        user:{
+            type:String,
+            required:true
+        },
+        createdAt:{
+            type:String,
+            required:true
+        },
+        description:{
+            type:String,
+            required:true
+        },
+        comId:{
             type:Number,
             required:true
-            }
+        },
+        fetchComFunction:{
+            type:Function,
+            require:true
+        },
     },
     computed:{
             ...mapGetters(['getLoginStatus']),
@@ -55,7 +59,7 @@ export default {
         switchToRead:function(){
             this.mode = 'read'
         },
-      deletePost() {
+      deleteCom() {
             axios.delete(`http://127.0.0.1:3000/api/commentaire/${this.comId}`,{
                 headers: {
                         "Authorization": 'Bearer ' + this.getLoginStatus.userInfos.token
@@ -63,11 +67,12 @@ export default {
                 })
                 .then((res) => {
                     console.log("response axios", res);
+                    this.fetchComFunction()
                     return res
                 })
                 .catch(error => ({ error }))
         },
-        modifyPost(){
+        modifyCom(){
             if (this.newDescription !=""){
             axios.put(`http://127.0.0.1:3000/api/commentaire/${this.comId}`,{
                 description:this.newDescription
@@ -79,6 +84,7 @@ export default {
                 .then((res) => {
                     console.log("response axios", res);
                     this.mode = 'read'
+                    this.fetchComFunction()
                     return res
                 })
                 .catch(error => (

@@ -1,28 +1,29 @@
 const { sequelize, Post, User, Like, Commentaire } = require('../models')
 const db = require('../models');
-// import services from '../service/services'
 const fs = require('fs');
 
 
 // Création d'une nouvelle post à partir d'un model
 exports.createPost = (req, res, next) => {
-    console.log("req.files", req.files);
-    console.log("req.body", req.body);
-    console.log("req.body2----------------------------------------", req.body.description);
 
-
-    console.log("log de proto", req.protocol);
-    console.log("log de get", req.get);
-    console.log("log de file", req.file);
-
-    const post = new Post({
-        description: req.body.description,
-        userId: req.auth.userId,
-        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
-    })
-    post.save()
-        .then(() => res.status(201).json({ message: 'Post enregistré !' }))
-        .catch(error => res.status(400).json({ error }));
+    if (req.file === undefined) {
+        const post = new Post({
+            description: req.body.description,
+            userId: req.auth.userId,
+        })
+        post.save()
+            .then(() => res.status(201).json({ message: 'Post enregistré !' }))
+            .catch(error => res.status(400).json({ error }));
+    } else {
+        const post = new Post({
+            description: req.body.description,
+            userId: req.auth.userId,
+            imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
+        })
+        post.save()
+            .then(() => res.status(201).json({ message: 'Post enregistré !' }))
+            .catch(error => res.status(400).json({ error }));
+    }
 }
 
 exports.modifyPost = (req, res, next) => {
@@ -50,15 +51,22 @@ exports.deletePost = (req, res, next) => {
     console.log(req.params.id);
     Post.findOne({ where: { id: req.params.id } })
         .then((post) => {
-            if (isAdmin(req.auth.role) || isCreator(post.userId, req.auth.userId)) {
+            console.log("------------------------- log de mon post -------------------------", post);
+
+            if (isAdmin(req.auth.role) || isCreator(post.userId, req.auth.userId) && post.imageUrl == null) {
+                console.log("suppre oiptin ssans image");
+                Post.destroy({ where: { id: req.params.id } })
+                    .then(() => res.status(200).json({ message: 'Post supprimé !' }))
+                    .catch((error) => res.status(401).json({ message: error }))
+            } else if (isAdmin(req.auth.role) || isCreator(post.userId, req.auth.userId)) {
                 Post.destroy({ where: { id: req.params.id } })
                     .then(() => res.status(200).json({ message: 'Post supprimé !' }))
                     .catch((error) => res.status(401).json({ message: error }))
                     // Récupération du nom de fichier pour suppression des données images de la bdd
-                    // const filename = post.imageUrl.split('/images/')[1]
-                    // fs.unlink(`images/${filename}`, () => {
-                    //     console.log("suppression etape 2");
-                    // })
+                const filename = post.imageUrl.split('/images/')[1]
+                fs.unlink(`images/${filename}`, () => {
+                    console.log("suppression etape 2");
+                })
             } else {
                 res.status(401).json({ message: 'Non autorisé' })
             }
@@ -66,36 +74,12 @@ exports.deletePost = (req, res, next) => {
         .catch(error => res.status(500).json({ message: error }))
 }
 
-exports.getOnePost = (req, res, next) => {
-    Post.findOne({
-            where: { id: req.params.id },
-            include: [{ model: User, as: "user", attributes: ['username'] }, {
-                model: Commentaire,
-                required: false,
-                through: {
-                    where: { postId: req.params.id },
-                    attributes: ['description']
-                }
-            }]
-        })
-        .then(post => res.status(200).json(post))
-        .catch(error => res.status(404).json({ error }))
-}
 
 exports.getAllPosts = (req, res, next) => {
     Post.findAll({ include: [{ model: User, as: "user", attributes: ['username'] }] })
         .then(posts => res.status(200).json(posts))
         .catch(error => res.status(400).json({ error }))
 }
-
-// Back de mon getAllPosts-----------------------------------------------------------------------
-// exports.getAllPosts = (req, res, next) => {
-//     Post.findAll({ include: [{ model: User, as: "user", attributes: ['username'] }] })
-//         .then(posts => res.status(200).json(posts))
-//         .catch(error => res.status(400).json({ error }))
-// }
-// Back de mon getAllPosts-----------------------------------------------------------------------
-
 
 
 exports.likePost = async(req, res, next) => {

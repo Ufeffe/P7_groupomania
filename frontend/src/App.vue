@@ -2,7 +2,6 @@
   <div class="container">
     <div class="welcome">
         <h1>Groupomania</h1>
-        <!-- {{getLoginStatus}} -->
     </div>
     <div v-if="getLoginStatus.loginSuccess" class="child_display">
       <Home/>
@@ -18,6 +17,7 @@
 import Home from "@/components/Home";
 import TheLogin from '@/components/TheLogin';
 import { mapGetters } from "vuex";
+import store from "./store";
 
 export default {
 /* eslint-disable */
@@ -27,8 +27,8 @@ components:{
   TheLogin
 },
 computed:{
-...mapGetters(['getLoginStatus'])
-}
+...mapGetters(['getLoginStatus']),
+},
 }
 </script>
 

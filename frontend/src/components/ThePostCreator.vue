@@ -1,21 +1,19 @@
 <template>
-      <div class="post_creation">
+    <div class="post_creation">
+        <h1>Créer votre post</h1>
 
-  <!-- <div class="post_creation" enctype="multipart/form-data"> -->
-    <h1>Créer votre post</h1>
+        <textarea name="" id="" cols="30" rows="10" v-model="description"></textarea>
 
-    <textarea name="" id="" cols="30" rows="10" v-model="description"></textarea>
+        <label for="insert_image">Importer une image:</label>
+        <input type="file" id="insert_image" name="insert_image" accept="image/png, image/jpeg, image/jpg" @change="onFileSelected($event)">
 
-    <label for="insert_image">Importer une image:</label>
-    <input type="file" id="insert_image" name="insert_image" accept="image/png, image/jpeg, image/jpg" @change="onFileSelected($event)">
+        <button type="submit" @click="CreatPost()">Poster</button>
 
-    <button type="submit" @click="CreatPost()">Poster</button>
-
-  </div>
+     </div>
 </template>
 
 <script>
-    import { mapActions,mapGetters } from "vuex";
+    import { mapGetters } from "vuex";
     import axios from "axios";
 
 export default {
@@ -26,24 +24,41 @@ export default {
             image:'',
         }
     },
+    props:{
+        fetchFunction:{
+            type:Function,
+            require:true
+        }
+    },
     computed:{
-            ...mapGetters(['getLoginStatus']),
-        },
+        ...mapGetters(['getLoginStatus']),
+    },
     methods:{
-    
-        // ...mapActions(['actionCreatPost']),
         onFileSelected(event){
             this.image = event.target.files[0]       
         },
-            CreatPost() {
+        
+        CreatPost() {
+            if(this.description != "" && this.image == ''){
+                axios.post('http://127.0.0.1:3000/api/posts/',
+                {description:this.description}
+                ,
+                {headers: {
+                        "Authorization": 'Bearer ' + this.getLoginStatus.userInfos.token,
+                }} )
+                .then((res) => {
+                    this.description = ""
+                    this.fetchFunction()
+                    console.log(res);
+                })
+                .catch(error => ({ error }))
+            }else if( this.description != "" && this.image !=''){        
                 const formData = new FormData();
                 formData.append('file', this.image);
                 formData.append('description', this.description);
-
                 for (const value of formData.values()) {
                 console.log(value);
-                }
-                if( this.description != ""){               
+                }       
                 axios.post('http://127.0.0.1:3000/api/posts/',
                     formData
                 ,
@@ -53,17 +68,15 @@ export default {
                 }} )
                 .then((res) => {
                     this.description = ""
+                    this.image = ''
+                    this.fetchFunction()
                     console.log(res);
                 })
                 .catch(error => ({ error }))
-        }else{
-            window.alert('veuillez entrer un texte avant de poster')
-        }},
-
-            // CreatPost(){
-            //     this.actionCreatPost({ description:this.description })
-            // },
-        }
+            }else{
+                window.alert('veuillez entrer un texte avant de poster')
+            }},  
+    }
 }
 </script>
 
