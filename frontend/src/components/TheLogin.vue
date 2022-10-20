@@ -1,16 +1,16 @@
 <template>
-    
-    <div id="login_form">
-        <h1 class="login_title" v-if="mode == 'login'">Connexion</h1>
-        <h1 class="login_title" v-else>Inscription</h1>
-        <p class="card_subtitle" v-if="mode == 'login'">Vous n'avez pas de compte ? <br><span class="card_action" @click="swicthToCreateAccount">Créer un compte</span></p>
-        <p class="card_subtitle" v-else>Vous avez déjà un compte ? <br><span class="card_action" @click="swicthToLogin">Connectez-vous</span></p>
+    <div>
+        <h2  v-if="mode == 'login'">Connexion</h2>
+        <h2  v-else>Inscription</h2>
         <div class="form">
-            <input v-model="username" type="text" placeholder="Nom d'utilisateur">
-            <input v-model="password" type="text" id="myPassword" placeholder="Mot de passe">
-            <button type="submit" @click="submitLogin" class="sumbit_button" v-if="mode=='login'">Connexion</button>
-            <button type="submit" @click="submitSignup" class="sumbit_button"  v-else>Créer mon compte</button>
+            <input class="custom_items hover_effect" v-model="username" type="text" placeholder="Adresse mail" autofocus>
+            <input class="custom_items hover_effect" v-model="password" type="password" placeholder="Mot de passe">
+            <button class="custom_items hover_effect egal" type="submit" @click="submitLogin" v-if="mode=='login'">Se connecter</button>
+            <button class="custom_items hover_effect" type="submit" @click="submitSignup" v-else>Créer mon compte</button>
         </div>
+        <p v-if="mode == 'login'">Vous n'avez pas de compte ? <br><span class="card_action" @click="swicthToCreateAccount">Créer un compte</span></p>
+        <p v-else>Vous avez déjà un compte ? <br><span class="card_action" @click="swicthToLogin">Se connecter</span></p>
+        
     </div>
 </template>
 
@@ -47,6 +47,18 @@ import { mapActions } from "vuex";
 
 <style scoped>
 .card_action{
-    text-decoration:underline
+    cursor: pointer;
+    text-decoration:underline var(--prim-color);
 }
+.form{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 15px 0;
+}
+.form>input{
+    margin-bottom: 10px;
+}
+
 </style>

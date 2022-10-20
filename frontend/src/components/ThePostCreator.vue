@@ -1,14 +1,17 @@
 <template>
     <div class="post_creation">
-        <h1>Créer votre post</h1>
-
-        <textarea name="" id="" cols="30" rows="10" v-model="description"></textarea>
-
-        <label for="insert_image">Importer une image:</label>
-        <input type="file" id="insert_image" name="insert_image" accept="image/png, image/jpeg, image/jpg" @change="onFileSelected($event)">
-
-        <button type="submit" @click="CreatPost()">Poster</button>
-
+        <textarea cols="30" rows="10" maxlength="200" v-model="description" placeholder="Créer un nouveau post"></textarea>
+        <div class="wrapper_option">
+            <div class="import_file">
+                <i class="fa-solid fa-file-arrow-up"></i>
+                <input type="file" id="file" name="file" accept="image/png, image/jpeg, image/jpg" class="inputfile" @change="onFileSelected($event)">
+                <label for="file" v-if="this.imageName==''">Photo</label>
+                <label for="file" v-else><span>{{imageName}}</span></label>
+            </div>
+            <div class="import_file" @click="CreatPost">
+                <i class="fa-solid fa-paper-plane"></i>
+            </div>
+        </div>
      </div>
 </template>
 
@@ -16,12 +19,14 @@
     import { mapGetters } from "vuex";
     import axios from "axios";
 
-export default {
+    export default {
+
     name:"PostCreator",
     data(){
         return{
             description:"",
             image:'',
+            imageName:'',
         }
     },
     props:{
@@ -34,8 +39,14 @@ export default {
         ...mapGetters(['getLoginStatus']),
     },
     methods:{
+        
         onFileSelected(event){
-            this.image = event.target.files[0]       
+            this.image = event.target.files[0]
+            if (this.image != undefined){
+                this.imageName = event.target.files[0].name
+            }else{
+                this.imageName = ""
+            }
         },
         
         CreatPost() {
@@ -46,19 +57,16 @@ export default {
                 {headers: {
                         "Authorization": 'Bearer ' + this.getLoginStatus.userInfos.token,
                 }} )
-                .then((res) => {
+                .then(() => {
                     this.description = ""
                     this.fetchFunction()
-                    console.log(res);
                 })
                 .catch(error => ({ error }))
             }else if( this.description != "" && this.image !=''){        
                 const formData = new FormData();
                 formData.append('file', this.image);
                 formData.append('description', this.description);
-                for (const value of formData.values()) {
-                console.log(value);
-                }       
+                       
                 axios.post('http://127.0.0.1:3000/api/posts/',
                     formData
                 ,
@@ -66,16 +74,16 @@ export default {
                         "Authorization": 'Bearer ' + this.getLoginStatus.userInfos.token,
                         'Content-Type': 'multipart/form-data'
                 }} )
-                .then((res) => {
+                .then(() => {
                     this.description = ""
-                    this.image = ''
+                    this.image = ""
+                    this.imageName = ""
                     this.fetchFunction()
-                    console.log(res);
                 })
                 .catch(error => ({ error }))
             }else{
                 window.alert('veuillez entrer un texte avant de poster')
-            }},  
+            }},
     }
 }
 </script>
@@ -87,10 +95,31 @@ export default {
     align-items: center;
     margin: 20px 0;
 }
-
 textarea {
-    width: 250px;
+    width: 99%;
     height: 150px;
-  resize: none;
+    border: 2px solid var(--ter-color);
 }
+
+.wrapper_option{
+    margin-top: 10px;
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly
+}
+
+.inputfile {
+	width: 0.1px;
+	height: 0.1px;
+	opacity: 0;
+	overflow: hidden;
+	position: absolute;
+	z-index: -1;
+}
+
+.import_file>label {
+    cursor: pointer;
+    color: var(--prim-color);
+}
+
 </style>

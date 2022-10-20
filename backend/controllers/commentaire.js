@@ -1,29 +1,20 @@
 const { sequelize, Post, Commentaire, User } = require('../models')
-    // import services from '../service/services'
 
 exports.createCommentaire = (req, res, next) => {
-
     const commentaire = new Commentaire({
         description: req.body.description,
         userId: req.auth.userId,
         postId: req.params.id
     })
-
     commentaire.save()
         .then(() => res.status(201).json({ message: 'commentaire enregistré !' }))
         .catch(error => res.status(400).json({ error }));
 }
 
 exports.modifyCommentaire = (req, res, next) => {
-    console.log("log du req", req.body);
-    console.log("log du req.params.id", req.params.id);
-    console.log("auth ID", req.auth.userId);
-
     const description = req.body.description
-
     Commentaire.findOne({ where: { id: req.params.id } })
         .then(commentaire => {
-            console.log("ID user du comm", commentaire.userId);
             if (isAdmin(req.auth.role) || isCreator(commentaire.userId, req.auth.userId)) {
                 Commentaire.update({ description }, { where: { id: req.params.id } })
                     .then(() => res.status(200).json({ message: 'commentaire modifié' }))
@@ -50,12 +41,9 @@ exports.getAllCommentaire = (req, res, next) => {
 }
 
 exports.deleteCommentaire = (req, res, next) => {
-
     Commentaire.findOne({ where: { id: req.params.id } })
         .then((commentaire) => {
             if (isAdmin(req.auth.role) || isCreator(commentaire.userId, req.auth.userId)) {
-                console.log(("debut suppr"));
-                console.log(req.params.id);
                 commentaire.destroy({ where: { id: req.params.id } })
                     .then(() => res.status(200).json({ message: 'commentaire supprimé !' }))
                     .catch((error) => res.status(401).json({ message: error }))
@@ -64,22 +52,16 @@ exports.deleteCommentaire = (req, res, next) => {
             }
         })
         .catch(error => res.status(500).json({ message: error }))
-
 }
 
 function isAdmin(role) {
-    console.log("check de ton role", role);
     if (role === "Admin") {
-        console.log("tu es bien admin");
         return true
     }
 }
 
 function isCreator(userId, reqAuth) {
-    console.log("check si t'es le créateur, ton id", reqAuth);
-    console.log("l'Id du créateur", userId);
     if (userId === reqAuth) {
-        console.log("tu es bien le créateur");
         return true
     }
 }

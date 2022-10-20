@@ -1,33 +1,32 @@
 <template>
   <article class="news">
         <header>
-            <h2 class="news_name"> Post de {{user}}</h2>
-            <h3 class="news_time">{{createdAt}}</h3>
+            <div>
+                <h2 class="news_name"> {{username[0]}}</h2>
+                <h3 class="news_time">{{postDate[0]}}</h3>
+            </div>
+            <div class="setting_items" v-if="this.getLoginStatus.userInfos.username  === this.user || this.getLoginStatus.userInfos.role ==='Admin'">
+                <i class="fa-solid fa-trash" @click="deletePost" v-if="mode =='read'"></i>
+                <i class="fa-solid fa-pen" @click="switchToEdit" v-if="mode == 'read'"></i>
+                <i class="fa-solid fa-xmark" @click="switchToRead" v-if="mode=='edit'"></i>
+                <i class="fa-solid fa-floppy-disk" v-if="mode=='edit'" @click="modifyPost"></i>
+            </div>
         </header>
 
-        <p class="news_article" v-if="mode == 'read'"> {{description}}</p>
-        <textarea  v-else v-model="newDescription"></textarea>
+        <p class="text_display" v-if="mode == 'read'"> {{description}}</p>
+        <textarea cols="30" rows="5" maxlength="200" v-else v-model="newDescription" placeholder="Editer votre message ici"></textarea>
 
-        <div class="news_img_container" v-if="imageUrl != null && mode == 'read'">
+        <div v-if="imageUrl != null">
             <img class="news_img" :src="imageUrl" :alt="imageAlt" >
         </div>
 
-        <div class="news_like_container"> 
-        <!-- <font-awesome-icon icon="fa-solid fa-heart" class="like_icon"/> -->
-        <button type="submit" @click="likePost">Like</button>
- 
-        {{likes}}
-        </div>
-        <div class="new_like_com_creator">
-            <textarea placeholder="Entrez votre commentaire" v-model="descriptionCommentaire"></textarea>
-            <button type="submit" @click="CreatCom">Poster Com</button>
+        <i class="fa-solid fa-heart spacing" @click="likePost"></i>{{likes}}
 
-        </div>
-        <div v-if="this.getLoginStatus.userInfos.username  === this.user || this.getLoginStatus.userInfos.role ==='Admin'">
-            <button type="submit" @click="deletePost">Delete Post</button>
-            <button @click="switchToEdit" v-if="mode == 'read'">Modifier Post</button>
-            <button @click="switchToRead" v-if="mode=='edit'">Annuler</button>
-            <button type="submit" v-if="mode=='edit'" @click="modifyPost">Enregistrer</button>
+        <div class="flex_row">
+            <textarea cols="30" rows="2" maxlength="200" placeholder="Entrez votre commentaire" v-model="descriptionCommentaire"></textarea>
+            <div class="import_file" @click="CreatCom">
+                <i class="fa-solid fa-paper-plane"></i>
+            </div>
         </div>
 
         <TheComTemplate v-for="com in comsFetched"
@@ -55,7 +54,9 @@ export default {
             mode:'read',
             newDescription: "",
             comsFetched:[],
-            descriptionCommentaire:""
+            descriptionCommentaire:"",
+            username:"",
+            postDate:"",
         }
     },
     components:{TheComTemplate},
@@ -97,9 +98,16 @@ export default {
         },
     mounted(){
         this.callComments()
+        this.getUsername(this.user)
+        this.getPostDate(this.createdAt)
     },
     methods:{
-
+        getPostDate(string){
+        this.postDate = string.split('T',1)
+        },
+        getUsername(string){
+            this.username = string.split('@',1)
+        },
         switchToEdit:function(){
             this.mode = 'edit'
         },
@@ -107,6 +115,8 @@ export default {
             this.mode = 'read'
         },
         CreatCom(){
+
+            if(this.descriptionCommentaire !=""){
             axios.post(`http://127.0.0.1:3000/api/commentaire/${this.postId}`,{
                         description:this.descriptionCommentaire
                     },{
@@ -115,13 +125,15 @@ export default {
                     }
                 })
                 .then((res)=>{
-                    console.log("response axios", res.data);
                     this.descriptionCommentaire = ""
                     this.callComments()
                     return res.data
                 })
                 .catch(error => ({ error }))
-        },
+        }else{
+            window.alert('Veuillez entrer un message avant de poster votre commentaire')
+        }
+    },
         callComments(){
                     axios.get(`http://127.0.0.1:3000/api/commentaire/${this.postId}`,{
                 headers: {
@@ -129,7 +141,6 @@ export default {
                     }
                 })
                 .then((res)=>{
-                    console.log("response axios", res.data);
                     return res.data
                 })
                 .then((comArray)=> {
@@ -137,7 +148,6 @@ export default {
                     this.comsFetched = comArray.sort(function(a,b) { 
                         return b.id - a.id })
                     this.fetchFunction()
-                    console.log("result final",this.comsFetched);
                 })
                 .catch(error => ({ error }))
             },
@@ -148,7 +158,6 @@ export default {
                     }
                 })
                 .then((res) => {
-                    console.log("response axios", res);
                     this.fetchFunction()
                     return res
                 })
@@ -164,7 +173,6 @@ export default {
                     }
                 })
                 .then((res) => {
-                    console.log("response axios", res);
                     this.mode = 'read'
                     this.fetchFunction()
                     return res
@@ -181,7 +189,6 @@ export default {
                     }
                 })
                 .then((res) => {
-                    console.log("response axios", res);
                     this.fetchFunction()
                     return res
                 })
@@ -193,12 +200,32 @@ export default {
 
 <style scoped>
 .news{
-    border:  solid grey;
-    margin-top: 5px;
+    border: 2px solid var(--ter-color);
+    border-radius: 10px;
+    margin-top: 30px;
+    padding: 15px 0px;
+    background-color: white;
+}
+header, .flex_row{
+    padding: 0px 15px;
+    text-align: left;
+    display: flex;
+    justify-content: space-between;
+}
+
+.text_display{
+    padding: 15px;
+    text-align: justify;
 }
 .news_img{
-    width: 350px;
+    width: 100%;
     height: 450px;
     object-fit: cover;
+}
+.import_file{
+    padding-top: 10px;
+}
+.spacing{
+    margin: 15px;
 }
 </style>

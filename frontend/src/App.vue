@@ -1,8 +1,6 @@
 <template>
   <div class="container">
-    <div class="welcome">
-        <h1>Groupomania</h1>
-    </div>
+    <h1>Groupomania</h1>
     <div v-if="getLoginStatus.loginSuccess" class="child_display">
       <Home/>
     </div>
@@ -17,7 +15,6 @@
 import Home from "@/components/Home";
 import TheLogin from '@/components/TheLogin';
 import { mapGetters } from "vuex";
-import store from "./store";
 
 export default {
 /* eslint-disable */
@@ -31,14 +28,3 @@ computed:{
 },
 }
 </script>
-
-
-<style>
-#app {
-  font-family: Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
-</style>

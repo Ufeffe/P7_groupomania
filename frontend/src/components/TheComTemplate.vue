@@ -1,22 +1,28 @@
 <template>
     <div class="display_com">
-      <h3>Com de {{user}}</h3>
-      <h6>{{createdAt}}</h6>
-      <p class="news_article" v-if="mode == 'read'"> {{description}}</p>
+        <header>
+            <div>
+                <h3>{{username[0]}}</h3>
+                <h4>{{postDate[0]}}</h4>
+            </div>
+            <div v-if="this.getLoginStatus.userInfos.username  === this.user || this.getLoginStatus.userInfos.role ==='Admin'">
+                <i class="fa-solid fa-trash" @click="deletePost" v-if="mode =='read'"></i>
+                <i class="fa-solid fa-pen" @click="switchToEdit" v-if="mode == 'read'"></i>
+                <i class="fa-solid fa-xmark" @click="switchToRead" v-if="mode=='edit'"></i>
+                <i class="fa-solid fa-floppy-disk" v-if="mode=='edit'" @click="modifyPost"></i>
+            </div>
+        </header>
+        
+        <p class="text_display" v-if="mode == 'read'"> {{description}}</p>
         <textarea  v-else v-model="newDescription"></textarea>
 
-      <div v-if="this.getLoginStatus.userInfos.username  === this.user || this.getLoginStatus.userInfos.role ==='Admin'">
-              <button type="submit" @click="deleteCom">Delete</button>
-              <button @click="switchToEdit" v-if="mode == 'read'">Modifier texte</button>
-              <button @click="switchToRead" v-if="mode=='edit'">Annuler</button>
-              <button type="submit" v-if="mode=='edit'" @click="modifyCom">Enregistrer</button>
-      </div>
+        
     </div>
 </template>
 
 <script>
 import axios from 'axios';
-import { mapActions, mapGetters } from "vuex";
+import { mapGetters } from "vuex";
 
 export default {
     name:"TheComTemplate",
@@ -24,6 +30,8 @@ export default {
       return {
         mode:'read',
         newDescription: "",
+        username:"",
+        postDate:"",
       }
     },
     props:{
@@ -52,9 +60,20 @@ export default {
             ...mapGetters(['getLoginStatus']),
             
         },
+    mounted(){
+        this.getUsername(this.user)
+        this.getPostDate(this.createdAt)
+    },
     methods:{
+        getPostDate(string){
+        this.postDate = string.split('T',1)
+        },
+        getUsername(string){
+            this.username = string.split('@',1)
+        },
       switchToEdit:function(){
             this.mode = 'edit'
+            this.newDescription= ""
         },
         switchToRead:function(){
             this.mode = 'read'
@@ -66,7 +85,6 @@ export default {
                     }
                 })
                 .then((res) => {
-                    console.log("response axios", res);
                     this.fetchComFunction()
                     return res
                 })
@@ -82,7 +100,6 @@ export default {
                     }
                 })
                 .then((res) => {
-                    console.log("response axios", res);
                     this.mode = 'read'
                     this.fetchComFunction()
                     return res
@@ -97,6 +114,14 @@ export default {
 </script>
 <style scoped>
 .display_com{
-    border: dashed red;
-margin: 15px;}
+    border: 2px solid var(--second-color);
+    border-radius: 10px;
+    margin: 15px;
+}
+header{
+    padding: 5px;
+}
+.text_display{
+    padding: 5px;
+}
 </style>

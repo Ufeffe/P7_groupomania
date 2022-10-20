@@ -5,7 +5,6 @@ const fs = require('fs');
 
 // Création d'une nouvelle post à partir d'un model
 exports.createPost = (req, res, next) => {
-
     if (req.file === undefined) {
         const post = new Post({
             description: req.body.description,
@@ -47,14 +46,9 @@ exports.modifyPost = (req, res, next) => {
 }
 
 exports.deletePost = (req, res, next) => {
-    console.log("debut suppr");
-    console.log(req.params.id);
     Post.findOne({ where: { id: req.params.id } })
         .then((post) => {
-            console.log("------------------------- log de mon post -------------------------", post);
-
             if (isAdmin(req.auth.role) || isCreator(post.userId, req.auth.userId) && post.imageUrl == null) {
-                console.log("suppre oiptin ssans image");
                 Post.destroy({ where: { id: req.params.id } })
                     .then(() => res.status(200).json({ message: 'Post supprimé !' }))
                     .catch((error) => res.status(401).json({ message: error }))
@@ -65,7 +59,7 @@ exports.deletePost = (req, res, next) => {
                     // Récupération du nom de fichier pour suppression des données images de la bdd
                 const filename = post.imageUrl.split('/images/')[1]
                 fs.unlink(`images/${filename}`, () => {
-                    console.log("suppression etape 2");
+                    console.log("Image deleted");
                 })
             } else {
                 res.status(401).json({ message: 'Non autorisé' })
@@ -83,7 +77,6 @@ exports.getAllPosts = (req, res, next) => {
 
 
 exports.likePost = async(req, res, next) => {
-    console.log("debut like");
     const postId = parseInt(req.params.id)
     const userId = parseInt(req.auth.userId)
 

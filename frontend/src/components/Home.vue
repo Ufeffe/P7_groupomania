@@ -1,6 +1,5 @@
 <template>
-    <div>
-        <h1>Affichage des posts</h1>
+    <div class="home_container">
         <Profil />
         <PostCreator 
         :fetchFunction="this.fetchItem"/>
@@ -23,7 +22,6 @@
     import Post  from "./ThePost.vue";
     import Profil from "./TheProfile.vue";
     import PostCreator from "./ThePostCreator.vue";
-    import SimpleUpload from "./SimpleUpload.vue"
     import { mapMutations , mapGetters } from "vuex";
     import axios from 'axios';
     import store from "@/store";
@@ -40,11 +38,9 @@
             Post,
             Profil,
             PostCreator,
-            SimpleUpload,
         },
         computed:{
             ...mapGetters(['getLoginStatus']),
-            
         },
         mounted(){
             this.fetchItem()
@@ -63,18 +59,21 @@
                     }
                 })
                 .then((res) => {
-                    console.log("response axios", res.data);
                     return res.data
                 })
                 .then((postsArray)=> {
                     //recupération du tableau des posts et tri en fonction de l'id en décroissant
                     this.postsFetched = postsArray.sort(function(a,b) { 
                         return b.id - a.id })
-                    console.log("result final",this.postsFetched);
                 })
                 .catch(error => ({ error }))
             },
-            
         },
     }
 </script>
+
+<style scoped>
+.home_container{
+    width: 100%;
+}
+</style>
