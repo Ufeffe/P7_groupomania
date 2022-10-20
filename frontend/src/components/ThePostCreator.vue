@@ -96,13 +96,13 @@
     margin: 20px 0;
 }
 textarea {
-    width: 99%;
     height: 150px;
     border: 2px solid var(--ter-color);
+    box-shadow: 5px 5px 2px 1px rgb(0 0 255 / 30%);
 }
 
 .wrapper_option{
-    margin-top: 10px;
+    margin-top: 20px;
     width: 100%;
     display: flex;
     justify-content: space-evenly

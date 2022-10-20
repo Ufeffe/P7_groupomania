@@ -35,3 +35,9 @@ export default{
     },
 }
 </script>
+
+<style scoped>
+h2{
+    text-shadow: 3px 3px 2px var(--second-color);
+}
+</style>

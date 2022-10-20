@@ -205,6 +205,7 @@ export default {
     margin-top: 30px;
     padding: 15px 0px;
     background-color: white;
+    box-shadow: 5px 5px 2px 1px rgb(0 0 255 / 30%);
 }
 header, .flex_row{
     padding: 0px 15px;

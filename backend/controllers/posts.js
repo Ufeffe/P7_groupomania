@@ -2,7 +2,6 @@ const { sequelize, Post, User, Like, Commentaire } = require('../models')
 const db = require('../models');
 const fs = require('fs');
 
-
 // Création d'une nouvelle post à partir d'un model
 exports.createPost = (req, res, next) => {
     if (req.file === undefined) {
@@ -71,19 +70,14 @@ exports.deletePost = (req, res, next) => {
         })
         .catch(error => res.status(500).json({ message: error }))
 }
-
-
 exports.getAllPosts = (req, res, next) => {
     Post.findAll({ include: [{ model: User, as: "user", attributes: ['username'] }] })
         .then(posts => res.status(200).json(posts))
         .catch(error => res.status(400).json({ error }))
 }
-
-
 exports.likePost = async(req, res, next) => {
     const postId = parseInt(req.params.id)
     const userId = parseInt(req.auth.userId)
-
     const isLiked = await Like.findOne({
         where: {
             userId: userId,
@@ -124,7 +118,6 @@ exports.likePost = async(req, res, next) => {
             .catch((error) => res.status(400).json({ message: error }))
     }
 }
-
 
 function isAdmin(role) {
     if (role === "Admin") {

@@ -9,6 +9,12 @@
     --ter-color: #4E5166;
 }
 
+#app {
+    min-height: 100vh;
+    height: 100%;
+    background-image: url(../assets/image-from-rawpixel-id-2210775-jpeg.jpg);
+}
+
 body {
     background-color: rgb(255, 255, 255);
     font-family: Lato;
@@ -21,6 +27,7 @@ h1 {
     font-size: 3.5rem;
     color: var(--prim-color);
     margin: 25px auto;
+    text-shadow: 3px 3px 2px var(--second-color);
 }
 
 h2 {
@@ -47,7 +54,6 @@ p {
     display: flex;
     flex-direction: row;
     justify-content: space-evenly;
-    background-color: #f1f1f1aa;
 }
 
 .fa-solid {
@@ -88,6 +94,7 @@ textarea {
 .import_file {
     font-size: 1.25em;
     font-weight: 700;
+    background-color: white;
     color: var(--prim-color);
     padding-right: 5px;
     border: solid 2px var(--prim-color);
