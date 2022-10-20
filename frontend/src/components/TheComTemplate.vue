@@ -6,10 +6,10 @@
                 <h4>{{postDate[0]}}</h4>
             </div>
             <div v-if="this.getLoginStatus.userInfos.username  === this.user || this.getLoginStatus.userInfos.role ==='Admin'">
-                <i class="fa-solid fa-trash" @click="deletePost" v-if="mode =='read'"></i>
+                <i class="fa-solid fa-trash" @click="deleteCom" v-if="mode =='read'"></i>
                 <i class="fa-solid fa-pen" @click="switchToEdit" v-if="mode == 'read'"></i>
                 <i class="fa-solid fa-xmark" @click="switchToRead" v-if="mode=='edit'"></i>
-                <i class="fa-solid fa-floppy-disk" v-if="mode=='edit'" @click="modifyPost"></i>
+                <i class="fa-solid fa-floppy-disk" v-if="mode=='edit'" @click="modifyCom"></i>
             </div>
         </header>
         

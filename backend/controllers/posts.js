@@ -48,10 +48,14 @@ exports.modifyPost = (req, res, next) => {
 exports.deletePost = (req, res, next) => {
     Post.findOne({ where: { id: req.params.id } })
         .then((post) => {
-            if (isAdmin(req.auth.role) || isCreator(post.userId, req.auth.userId) && post.imageUrl == null) {
-                Post.destroy({ where: { id: req.params.id } })
-                    .then(() => res.status(200).json({ message: 'Post supprimé !' }))
-                    .catch((error) => res.status(401).json({ message: error }))
+            if (hasFile(post) == false) {
+                if (isAdmin(req.auth.role) || isCreator(post.userId, req.auth.userId)) {
+                    Post.destroy({ where: { id: req.params.id } })
+                        .then(() => res.status(200).json({ message: 'Post supprimé !' }))
+                        .catch((error) => res.status(401).json({ message: error }))
+                } else {
+                    res.status(401).json({ message: 'Non autorisé' })
+                }
             } else if (isAdmin(req.auth.role) || isCreator(post.userId, req.auth.userId)) {
                 Post.destroy({ where: { id: req.params.id } })
                     .then(() => res.status(200).json({ message: 'Post supprimé !' }))
@@ -130,6 +134,14 @@ function isAdmin(role) {
 
 function isCreator(userId, reqAuth) {
     if (userId === reqAuth) {
+        return true
+    }
+}
+
+function hasFile(post) {
+    if (post.imageUrl == null) {
+        return false
+    } else {
         return true
     }
 }
