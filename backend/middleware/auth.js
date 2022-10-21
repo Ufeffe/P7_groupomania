@@ -5,9 +5,12 @@ module.exports = (req, res, next) => {
         const token = req.headers.authorization.split(' ')[1]
         const decodedToken = jwt.verify(token, 'RANDOM_TOKEN_SECRET')
         const userId = decodedToken.userId
-
+        const role = decodedToken.role
+        const username = decodedToken.username
         req.auth = {
-            userId: userId
+            userId: userId,
+            role: role,
+            username: username
         }
         next()
     } catch (error) {

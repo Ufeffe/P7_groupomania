@@ -12,9 +12,9 @@ router.put('/:id', auth, multer, postCtrl.modifyPost)
 
 // Routes sans gestion de fichiers images
 router.get('/', auth, postCtrl.getAllPosts)
-router.get('/:id', auth, postCtrl.getOnePost)
 router.delete('/:id', auth, postCtrl.deletePost);
 router.post('/:id/like', auth, postCtrl.likePost)
+
 
 
 module.exports = router

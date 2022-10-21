@@ -1,52 +1,30 @@
-<script setup>
-import Login from './components/Login.vue'
-import Feed from './components/Feed.vue'
-
-</script>
-
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/icon-left-font.svg"  />
-  </header>
+  <div class="container">
+    <h1>Groupomania</h1>
+    <div v-if="getLoginStatus.loginSuccess" class="child_display">
+      <Home/>
+    </div>
+    <div v-else class="child_display">
+      <TheLogin/>
+    </div>
+  </div>
 
-  <main>
-    <Login/>
-    <Feed/>
-
-
-  </main>
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
-}
+<script>
+import Home from "@/components/Home";
+import TheLogin from '@/components/TheLogin';
+import { mapGetters } from "vuex";
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-  width:250px;
-  height:250px;
+export default {
+/* eslint-disable */
+name: 'Homepage',
+components:{
+  Home,
+  TheLogin
+},
+computed:{
+...mapGetters(['getLoginStatus']),
+},
 }
-main{
-  width: 100%;
-  /* margin: auto; */
-}
-/* @media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  } 
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-} */
-</style>
+</script>

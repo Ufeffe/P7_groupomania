@@ -1,17 +1,19 @@
-require('dotenv').config()
-const { Sequelize } = require('sequelize')
+const { Sequelize, User, Post } = require('./models')
+
 
 const express = require('express')
 const path = require('path');
 
 const postsRoutes = require('./routes/posts')
 const userRoutes = require('./routes/user')
+const commentaireRoutes = require('./routes/commentaire')
+
 
 const app = express()
 
 async function connectToPostgres() {
 
-    const sequelize = new Sequelize('postgres://postgres:poiu987@localhost:5432/P7_groupomania')
+    const sequelize = new Sequelize('postgres://dvftiwqj:Ky6KQCXcS8ZO7xonVhlqQ4Q4P3vj3qo9@tyke.db.elephantsql.com/dvftiwqj')
     try {
         await sequelize.authenticate();
         console.log('Connection has been established successfully.');
@@ -31,9 +33,11 @@ app.use((req, res, next) => {
     next()
 })
 
+
 app.use('/api/posts', postsRoutes)
 app.use('/api/auth', userRoutes)
 app.use('/images', express.static(path.join(__dirname, 'images')))
+app.use('/api/commentaire', commentaireRoutes)
 
 
 module.exports = app
