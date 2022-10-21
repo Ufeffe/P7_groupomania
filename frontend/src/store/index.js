@@ -29,6 +29,8 @@ const store = createStore({
                     const data = res.data
                     context.commit('login_success', { username: data.username, token: data.token, role: data.role })
                 })
+                .catch(() =>
+                    window.alert('Vérifier les informations'))
         },
         async actionSignup(context, payload) {
             const regex = new RegExp('^[a-zA-Z0-9.-_]+@{1}[a-zA-Z0-9.-_]+[.]{1}[a-z]{2,3}$')
@@ -42,6 +44,9 @@ const store = createStore({
                         const data = data2.data
                         context.commit('login_success', { username: data.username, token: data.token, role: data.role })
                     })))
+                    .catch((error) => console.log(error))
+            } else {
+                window.alert('Veulliez entrer un email')
             }
         },
     },
