@@ -27,7 +27,7 @@ exports.createPost = (req, res, next) => {
 exports.modifyPost = (req, res, next) => {
     // Recherche et récupération du lien image sinon importation classique
     const postObject = req.file ? {
-        ...JSON.parse(req.body.post),
+        description: req.body.description,
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
     } : {...req.body }
 

@@ -1,45 +1,51 @@
 <template>
-  <article class="news">
-        <header>
-            <div>
-                <h2 class="news_name"> {{username[0]}}</h2>
-                <h3 class="news_time">{{postDate[0]}}</h3>
-            </div>
-            <div class="setting_items" v-if="this.getLoginStatus.userInfos.username  === this.user || this.getLoginStatus.userInfos.role ==='Admin'">
-                <i class="fa-solid fa-trash" @click="deletePost" v-if="mode =='read'"></i>
-                <i class="fa-solid fa-pen" @click="switchToEdit" v-if="mode == 'read'"></i>
-                <i class="fa-solid fa-xmark" @click="switchToRead" v-if="mode=='edit'"></i>
-                <i class="fa-solid fa-floppy-disk" v-if="mode=='edit'" @click="modifyPost"></i>
-            </div>
-        </header>
-
-        <p class="text_display" v-if="mode == 'read'"> {{description}}</p>
-        <textarea cols="30" rows="5" maxlength="200" v-else v-model="newDescription" placeholder="Editer votre message ici"></textarea>
-
-        <div v-if="imageUrl != null">
-            <img class="news_img" :src="imageUrl" :alt="imageAlt" >
-        </div>
-
-        <i class="fa-solid fa-heart spacing" @click="likePost"></i>{{likes}}
-
-        <div class="flex_row">
-            <textarea cols="30" rows="2" maxlength="200" placeholder="Entrez votre commentaire" v-model="descriptionCommentaire"></textarea>
-            <div class="import_file" @click="CreatCom">
-                <i class="fa-solid fa-paper-plane"></i>
-            </div>
-        </div>
-
-        <TheComTemplate v-for="com in comsFetched"
-        :fetchComFunction="this.callComments"
-        :comId="com.id"
-        :key="com.id"
-        :user= "com.user.username"
-        :description="com.description"
-        :createdAt="com.createdAt"
-        ></TheComTemplate>
-
-    </article>
-</template>
+    <article class="news">
+          <header>
+              <div>
+                  <h2 class="news_name"> {{username[0]}}</h2>
+                  <h3 class="news_time">{{postDate[0]}}</h3>
+              </div>
+              <div class="setting_items" v-if="this.getLoginStatus.userInfos.username  === this.user || this.getLoginStatus.userInfos.role ==='Admin'">
+                  <i class="fa-solid fa-trash" @click="deletePost" v-if="mode =='read'"></i>
+                  <i class="fa-solid fa-pen" @click="switchToEdit" v-if="mode == 'read'"></i>
+                  <i class="fa-solid fa-xmark" @click="switchToRead" v-if="mode=='edit'"></i>
+                  <i class="fa-solid fa-floppy-disk" v-if="mode=='edit'" @click="modifyPost"></i>
+                  <div class="import_file" v-if="mode =='edit'">
+                    <i class="fa-solid fa-file-arrow-up"></i>
+                    <input type="file" id="fileEdit" name="fileEdit" accept="image/png, image/jpeg, image/jpg" class="inputfile" @change="onFileSelected($event)">
+                    <label for="fileEdit" v-if="this.imageName==''">Photo</label>
+                    <label for="fileEdit" v-else><span>{{imageName}}</span></label>
+                </div>
+              </div>
+          </header>
+  
+          <p class="text_display" v-if="mode == 'read'"> {{description}}</p>
+          <textarea cols="30" rows="5" maxlength="200" v-else v-model="newDescription" :placeholder=this.description></textarea>
+  
+          <div v-if="imageUrl != null">
+              <img class="news_img" :src="imageUrl" :alt="imageAlt" >
+          </div>
+  
+          <i class="fa-solid fa-heart spacing" @click="likePost"></i>{{likes}}
+  
+          <div class="flex_row">
+              <textarea cols="30" rows="2" maxlength="200" placeholder="Entrez votre commentaire" v-model="descriptionCommentaire"></textarea>
+              <div class="import_file" @click="CreatCom">
+                  <i class="fa-solid fa-paper-plane"></i>
+              </div>
+          </div>
+  
+          <TheComTemplate v-for="com in comsFetched"
+          :fetchComFunction="this.callComments"
+          :comId="com.id"
+          :key="com.id"
+          :user= "com.user.username"
+          :description="com.description"
+          :createdAt="com.createdAt"
+          ></TheComTemplate>
+  
+      </article>
+  </template>
 
 <script>
 import axios from 'axios';
@@ -57,6 +63,8 @@ export default {
             descriptionCommentaire:"",
             username:"",
             postDate:"",
+            image:'',
+            imageName:'',
         }
     },
     components:{TheComTemplate},
@@ -102,6 +110,14 @@ export default {
         this.getPostDate(this.createdAt)
     },
     methods:{
+        onFileSelected(event){
+            this.image = event.target.files[0]
+            if (this.image != undefined){
+                this.imageName = event.target.files[0].name
+            }else{
+                this.imageName = ""
+            }
+        },
         getPostDate(string){
         this.postDate = string.split('T',1)
         },
@@ -164,24 +180,42 @@ export default {
                 .catch(error => ({ error }))
         },
         modifyPost(){
-            if (this.newDescription !=""){
-            axios.put(`http://127.0.0.1:3000/api/posts/${this.postId}`,{
-                description:this.newDescription
-            },{
-                headers: {
-                        "Authorization": 'Bearer ' + this.getLoginStatus.userInfos.token
-                    }
-                })
-                .then((res) => {
-                    this.mode = 'read'
+            if(this.newDescription != "" && this.image == ''){
+                axios.put(`http://127.0.0.1:3000/api/posts/${this.postId}`,
+                {description:this.newDescription}
+                ,
+                {headers: {
+                        "Authorization": 'Bearer ' + this.getLoginStatus.userInfos.token,
+                }} )
+                .then(() => {
+                    this.newDescription = ""
+                    this.mode='read'
                     this.fetchFunction()
-                    return res
                 })
-                .catch(error => (
-                    this.mode = 'read', { error }))
-        }else{
-            window.alert('veuillez entrer un texte avant de poster')
-        }},
+                .catch(error => ({ error }))
+            }else if( this.newDescription != "" && this.image !=''){        
+                const formData = new FormData();
+                formData.append('file', this.image);
+                formData.append('description', this.newDescription);
+                       
+                axios.put(`http://127.0.0.1:3000/api/posts/${this.postId}`,
+                    formData
+                ,
+                {headers: {
+                        "Authorization": 'Bearer ' + this.getLoginStatus.userInfos.token,
+                        'Content-Type': 'multipart/form-data'
+                }} )
+                .then(() => {
+                    this.newDescription = ""
+                    this.image = ""
+                    this.imageName = ""
+                    this.fetchFunction()
+                    this.mode='read'
+                })
+                .catch(error => ({ error }))
+            }else{
+                window.alert('veuillez entrer un texte avant de poster')
+            }},
         likePost() {
              axios.post(`http://127.0.0.1:3000/api/posts/${this.postId}/like`,{},{
                 headers: {
@@ -228,5 +262,18 @@ header, .flex_row{
 }
 .spacing{
     margin: 15px;
+}
+.inputfile {
+	width: 0.1px;
+	height: 0.1px;
+	opacity: 0;
+	overflow: hidden;
+	position: absolute;
+	z-index: -1;
+}
+
+.import_file>label {
+    cursor: pointer;
+    color: var(--prim-color);
 }
 </style>
