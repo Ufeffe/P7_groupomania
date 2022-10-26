@@ -1,6 +1,8 @@
 <template>
   <div class="container">
-    <h1>Groupomania</h1>
+    <div class="logo_container">
+      <img src="./assets/icon-left-font.svg" alt="logo de l'entreprise groupomania">
+    </div>
     <div v-if="getLoginStatus.loginSuccess" class="child_display">
       <Home/>
     </div>
@@ -28,3 +30,17 @@ computed:{
 },
 }
 </script>
+
+<style scoped>
+.logo_container{
+  height:150px;
+  width: 270px;
+  overflow: hidden;
+}
+img{
+height: 200%;
+position: relative;
+top: -80px;
+left: -40px;
+}
+</style>
