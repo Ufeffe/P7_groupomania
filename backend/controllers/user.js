@@ -1,21 +1,24 @@
 const { sequelize, User } = require('../models')
+const validator = require("email-validator");
 
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 
 exports.signup = (req, res, next) => {
-    bcrypt.hash(req.body.password, 10)
-        .then(hash => {
-            const user = User.build({
-                username: req.body.username,
-                password: hash,
-                role: req.body.role
+    if (validator.validate(req.body.username)) {
+        bcrypt.hash(req.body.password, 10)
+            .then(hash => {
+                const user = User.build({
+                    username: req.body.username,
+                    password: hash,
+                    role: req.body.role
+                })
+                user.save()
+                    .then(() => res.status(201).json({ message: 'Utilisateur créé' }))
+                    .catch(error => res.status(400).json({ error }))
             })
-            user.save()
-                .then(() => res.status(201).json({ message: 'Utilisateur créé' }))
-                .catch(error => res.status(400).json({ error }))
-        })
-        .catch(error => res.status(500).json({ error }))
+            .catch(error => res.status(500).json({ error }))
+    }
 }
 
 exports.login = (req, res, next) => {
