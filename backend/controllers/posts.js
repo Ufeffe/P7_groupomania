@@ -33,6 +33,11 @@ exports.modifyPost = (req, res, next) => {
 
     Post.findOne({ where: { id: req.params.id } })
         .then(post => {
+            // Récupération du nom de fichier pour suppression des données images de la bdd
+            const filename = post.imageUrl.split('/images/')[1]
+            fs.unlink(`images/${filename}`, () => {
+                console.log("Image deleted");
+            })
             if (isAdmin(req.auth.role) || isCreator(post.userId, req.auth.userId)) {
                 Post.update({...postObject }, { where: { id: req.params.id } })
                     .then(() => res.status(200).json({ message: 'Post modifié' }))
